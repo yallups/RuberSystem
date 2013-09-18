@@ -42,8 +42,8 @@ Mike Barnes
 # include "../includes465/include465.h"
 
 // Edit the next two lines to view your model.
-char * modelFile = "cube2.tri";   // name of tri model file
-const GLuint nVertices = 12 * 3;  // 3 vertices per line of model file 
+char * modelFile = "rocket.tri";   // name of tri model file
+const GLuint nVertices = 144 * 3;  // 3 vertices per line of model file 
  
 float boundingRadius;  // modelFile's bounding radius
 // display state and "state strings" for title display

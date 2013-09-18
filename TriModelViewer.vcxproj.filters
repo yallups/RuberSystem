@@ -18,6 +18,8 @@
     <None Include="cube2.tri" />
     <None Include="viewVertex.glsl" />
     <None Include="viewFragment.glsl" />
+    <None Include="planet.tri" />
+    <None Include="rocket.tri" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="triModelViewer.cpp">

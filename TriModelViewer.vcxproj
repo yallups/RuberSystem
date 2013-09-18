@@ -63,6 +63,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="cube2.tri" />
+    <None Include="planet.tri" />
+    <None Include="rocket.tri" />
     <None Include="viewFragment.glsl" />
     <None Include="viewVertex.glsl" />
   </ItemGroup>
