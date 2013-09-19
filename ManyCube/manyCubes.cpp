@@ -46,8 +46,12 @@ Mike Barnes
 const int nShapes = 5;
 Shape3D * shape[nShapes];
 // Model for shapes
-char * modelFile = "cube2.tri";  // name of tri model file
-const GLuint nVertices = 12 * 3;  // 3 vertices per line (surface) of model file  
+char * modelFile0 = "ruber.tri";  // name of tri model file
+char * modelFile1 = "unum.tri";  // name of tri model file
+char * modelFile2 = "duo.tri";  // name of tri model file
+char * modelFile3 = "moon.tri";  // name of tri model file
+char * modelFile4 = "moon.tri";  // name of tri model file
+const GLuint nVertices = 264 * 3;  // 3 vertices per line (surface) of model file  
 float boundingRadius;  // modelFile's bounding radius
 int Index =  0;  // global variable indexing into VBO arrays
 
@@ -83,12 +87,12 @@ int timerDelay = 1000, frameCount = 0;
 
 
 void init (void) {
-  boundingRadius = loadTriModel(modelFile, nVertices, vertex, diffuseColorMaterial, normal);
+  boundingRadius = loadTriModel(modelFile0, nVertices, vertex, diffuseColorMaterial, normal);
   if (boundingRadius == -1.0f) {
     printf("loadTriModel error:  returned -1.0f \n");
     exit(1); }
     else
-      printf("loaded %s model with %7.2f bounding radius \n", modelFile, boundingRadius);
+      printf("loaded %s model with %7.2f bounding radius \n", modelFile0, boundingRadius);
 
   shaderProgram = loadShaders(vertexShaderFile,fragmentShaderFile);
   glUseProgram(shaderProgram);
@@ -155,7 +159,7 @@ void display(void) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // update model matrix, set MVP, draw
   for(int i = 0; i < nShapes; i++) { 
-    modelMatrix = shape[i]->getModelMatrix(); 
+	modelMatrix = shape[i]->getModelMatrix(shape[2]->translationMatrix, shape[2]->rotationMatrix); 
     viewProjectionMatrix = projectionMatrix * viewMatrix; 
     glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
     glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
@@ -169,7 +173,9 @@ void display(void) {
 // to set rotation
 void animate(void){
   frameCount++;
-  for(int i = 0; i < nShapes; i++) shape[i] -> update();
+  for(int i = 0; i < nShapes; i++) {
+	  shape[i] -> update(i, shape[2]->translationMatrix, shape[2]->rotationMatrix);
+  }
   glutPostRedisplay();
   }
 
