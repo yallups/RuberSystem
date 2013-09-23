@@ -52,7 +52,17 @@ char * modelFile2 = "duo.tri";  // name of tri model file
 char * modelFile3 = "moon.tri";  // name of tri model file
 char * modelFile4 = "moon.tri";  // name of tri model file
 const GLuint nVertices = 264 * 3;  // 3 vertices per line (surface) of model file  
+
+char * modelFile = "cube2.tri";  // name of tri model file
+char * rocketModel = "rocket.tri";  // name of Rocket model file
+char * planetModel = "planet.tri";  // name of Planet model file
+const GLuint nVertices = 12 * 3;  // 3 vertices per line (surface) of model file  
+const GLuint nVerticesRocket = 144 * 3;  // 3 vertices per line (surface) of model file  
+const GLuint nVerticesPlanet = 264 * 3;  // 3 vertices per line (surface) of model file  
+
 float boundingRadius;  // modelFile's bounding radius
+float boundingRadiusRocket;  // modelFile's bounding radius
+float boundingRadiusPlanet;  // modelFile's bounding radius
 int Index =  0;  // global variable indexing into VBO arrays
 
 // display state and "state strings" for title display
@@ -79,6 +89,16 @@ glm::vec3 eye, at, up;
 glm::vec4 vertex[nVertices];
 glm::vec3 normal[nVertices];
 glm::vec4 diffuseColorMaterial[nVertices];
+
+// vectors for "modelRocket"
+glm::vec4 vertexRocket[nVerticesRocket];
+glm::vec3 normalRocket[nVerticesRocket];
+glm::vec4 diffuseColorMaterialRocket[nVerticesRocket];
+
+// vectors for "modelPlanet"
+glm::vec4 vertexPlanet[nVerticesPlanet];
+glm::vec3 normalPlanet[nVerticesPlanet];
+glm::vec4 diffuseColorMaterialPlanet[nVerticesPlanet];
 
 // rotation variables
 glm::mat4 identity(1.0f); 

@@ -18,6 +18,8 @@
     <None Include="cube2.tri" />
     <None Include="simpleFragment.glsl" />
     <None Include="simpleVertex.glsl" />
+    <None Include="rocket.tri" />
+    <None Include="planet.tri" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="manyCubes.cpp">
@@ -26,6 +28,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shape3D.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RocketShip.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
