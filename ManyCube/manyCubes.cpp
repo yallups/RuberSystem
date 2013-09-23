@@ -194,7 +194,7 @@ void display(void) {
 void animate(void){
   frameCount++;
   for(int i = 0; i < nShapes; i++) {
-	  shape[i] -> update(i, shape[2]->translationMatrix, shape[2]->rotationMatrix);
+	  shape[i] -> update();
   }
   glutPostRedisplay();
   }
@@ -215,16 +215,26 @@ void keyboard (unsigned char key, int x, int y) {
   switch(key) {
     case 033 : case 'q' :  case 'Q' : exit(EXIT_SUCCESS); break;
     case 'f' : case 'F' :  // front view
-        eye = glm::vec3(0.0f, 0.0f, 2000.0f);   // eye is 2000 "out of screen" from origin
+        eye = glm::vec3(0.0f, 0.0f, 4000.0f);   // eye is 4000 "out of screen" from origin
         at  = glm::vec3(0.0f, 0.0f,    0.0f);   // looking at origin
         up  = glm::vec3(0.0f, 1.0f,    0.0f);   // camera'a up vector
         strcpy(viewStr, " front view"); break;
-    case 'r' : case 'R' :  // bottom view
-        eye = glm::vec3(1000.0f, 0.0f, 0.0f);   // eye is 1000 right from origin
-        at  = glm::vec3(   0.0f, 0.0f, 0.0f);   // looking at origin
-        up  = glm::vec3(   0.0f, 1.0f, 0.0f);   // camera'a up vector
-        strcpy(viewStr, " right view"); break;
     case 't' : case 'T' :  // top view
+        eye = glm::vec3(0.0f, 4000.0f,  0.0f);   // eye is 4000 up from origin
+        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
+        up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
+        strcpy(viewStr, " top view"); break;
+    case 'u' : case 'U' :  // unum view
+        eye = glm::vec3(0.0f, 3000.0f,  0.0f);   // eye is 3000 up from origin
+        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
+        up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
+        strcpy(viewStr, " top view"); break;
+    case 'd' : case 'D' :  // duo view
+        eye = glm::vec3(0.0f, 3000.0f,  0.0f);   // eye is 3000 up from origin
+        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
+        up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
+        strcpy(viewStr, " top view"); break;
+    case 'w' : case 'W' :  // warbird view
         eye = glm::vec3(0.0f, 3000.0f,  0.0f);   // eye is 3000 up from origin
         at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
         up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
