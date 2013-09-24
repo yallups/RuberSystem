@@ -41,10 +41,12 @@ Mike Barnes
 # define __INCLUDES465__   
 
 # include "Shape3D.hpp"
+# include "RocketShip.hpp"
 
 // Shapes
 const int nShapes = 5;
 Shape3D * shape[nShapes];
+RocketShip * rocketship;
 // Model for shapes
 char * modelFile0 = "ruber.tri";  // name of tri model file
 char * modelFile1 = "unum.tri";  // name of tri model file
@@ -56,7 +58,6 @@ const GLuint nVertices = 264 * 3;  // 3 vertices per line (surface) of model fil
 char * modelFile = "cube2.tri";  // name of tri model file
 char * rocketModel = "rocket.tri";  // name of Rocket model file
 char * planetModel = "planet.tri";  // name of Planet model file
-const GLuint nVertices = 12 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesRocket = 144 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesPlanet = 264 * 3;  // 3 vertices per line (surface) of model file  
 
@@ -158,6 +159,7 @@ void init (void) {
 
   // create shape
   for(int i = 0; i < nShapes; i++) shape[i] = new Shape3D(i);
+  rocketship = new RocketShip();
   printf("%d Shapes created \n", nShapes);
   }
 
@@ -176,15 +178,21 @@ void updateTitle() {
   }
 
 void display(void) {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  // update model matrix, set MVP, draw
-  for(int i = 0; i < nShapes; i++) { 
-	modelMatrix = shape[i]->getModelMatrix(shape[2]->translationMatrix, shape[2]->rotationMatrix); 
-    viewProjectionMatrix = projectionMatrix * viewMatrix; 
-    glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
-    glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
-    glDrawArrays(GL_TRIANGLES, 0, nVertices);
-    }
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	  // update model matrix, set MVP, draw
+	  for(int i = 0; i < nShapes; i++) { 
+		modelMatrix = shape[i]->getModelMatrix(shape[2]->translationMatrix, shape[2]->rotationMatrix); 
+		viewProjectionMatrix = projectionMatrix * viewMatrix; 
+		glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
+		glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
+		glDrawArrays(GL_TRIANGLES, 0, nVertices);
+	  }
+	  modelMatrix = rocketship->getModelMatrix(rocketship->translationMatrix, rocketship->rotationMatrix); 
+	viewProjectionMatrix = projectionMatrix * viewMatrix; 
+	glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
+	glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
+	glDrawArrays(GL_TRIANGLES, 0, nVerticesRocket);
+
   glutSwapBuffers();
   frameCount++;
   }
