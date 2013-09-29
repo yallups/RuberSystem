@@ -63,11 +63,11 @@ public:
 			radians = glm::radians(0.4f); //Rotate around Duo
 			orbital = true;
 			break;
-		case 5: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(10, 10, 10));  // make Secundus
+		case 5: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(10, 10, 10));  // make Warbird
 			translationMatrix = glm::translate(glm::mat4(), glm::vec3(500, 100, 500));		// initial placement +/- 500 from origin in X, Y, Z
 			//set cube's  rotation axis and rotation radians
 			rotationAxis = glm::vec3(0,  1, 0);
-			radians = glm::radians(0.0f); //Rotate around Duo
+			radians = glm::radians(0.0f); //No Rotation
 			orbital = false;
 			break;
 	}

@@ -63,10 +63,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="cube2.tri" />
-    <None Include="planet.tri" />
+    <None Include="duo.tri" />
+    <None Include="moon.tri" />
     <None Include="rocket.tri" />
+    <None Include="ruber.tri" />
     <None Include="simpleFragment.glsl" />
     <None Include="simpleVertex.glsl" />
+    <None Include="unum.tri" />
+    <None Include="warbird.tri" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="manyCubes.cpp" />
