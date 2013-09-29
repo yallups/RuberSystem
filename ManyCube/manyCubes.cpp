@@ -44,26 +44,24 @@ Mike Barnes
 # include "RocketShip.hpp"
 
 // Shapes
-const int nShapes = 5;
+const int nShapes = 6;
 Shape3D * shape[nShapes];
 RocketShip * rocketship;
 // Model for shapes
-char * modelFile0 = "ruber.tri";  // name of tri model file
-char * modelFile1 = "unum.tri";  // name of tri model file
-char * modelFile2 = "duo.tri";  // name of tri model file
-char * modelFile3 = "moon.tri";  // name of tri model file
-char * modelFile4 = "moon.tri";  // name of tri model file
-const GLuint nVertices = 264 * 3;  // 3 vertices per line (surface) of model file  
+char * modelFile[] = {"ruber.tri", "unum.tri", "duo.tri", "moon.tri", "moon.tri", "warbird.tri"};
+const GLuint nVerticesSphere = 264 * 3;  // 3 vertices per line (surface) of model file  
+const GLuint nVerticesWarbird = 224 * 3;
 
-char * modelFile = "cube2.tri";  // name of tri model file
+
 char * rocketModel = "rocket.tri";  // name of Rocket model file
+<<<<<<< HEAD
 char * planetModel = "planet.tri";  // name of Planet model file
+=======
+>>>>>>> Just-in-Case
 const GLuint nVerticesRocket = 144 * 3;  // 3 vertices per line (surface) of model file  
-const GLuint nVerticesPlanet = 264 * 3;  // 3 vertices per line (surface) of model file  
 
-float boundingRadius;  // modelFile's bounding radius
+float boundingRadius[nShapes];  // modelFile's bounding radius
 float boundingRadiusRocket;  // modelFile's bounding radius
-float boundingRadiusPlanet;  // modelFile's bounding radius
 int Index =  0;  // global variable indexing into VBO arrays
 
 // display state and "state strings" for title display
@@ -72,7 +70,8 @@ char baseStr[50] =    "465 manyCubes Example {f, t, r} : ";
 char fpsStr[15], viewStr[15] =    " front view";
 char titleStr [100]; 
 
-GLuint vao;  // VertexArrayObject
+GLuint vao[nShapes];  // VertexArrayObject
+GLuint buffer[nShapes]; // Create and initialize a buffer object
 GLuint shaderProgram; 
 char * vertexShaderFile = "simpleVertex.glsl";
 char * fragmentShaderFile = "simpleFragment.glsl";
@@ -82,24 +81,23 @@ glm::mat4 modelMatrix;          // set in shape[i]-->updateDraw()
 glm::mat4 viewMatrix;           // set in keyboard()
 glm::mat4 viewProjectionMatrix; // set in display();
 
+GLuint vPosition[nShapes];
+GLuint vColor[nShapes];
+GLuint vNormal[nShapes];
 
 // vectors and values for lookAt
 glm::vec3 eye, at, up;
 
 // vectors for "model"
-glm::vec4 vertex[nVertices];
-glm::vec3 normal[nVertices];
-glm::vec4 diffuseColorMaterial[nVertices];
+glm::vec4 vertexSphere[nVerticesSphere];
+glm::vec3 normalSphere[nVerticesSphere];
+glm::vec4 diffuseColorMaterialSphere[nVerticesSphere];
 
 // vectors for "modelRocket"
-glm::vec4 vertexRocket[nVerticesRocket];
-glm::vec3 normalRocket[nVerticesRocket];
-glm::vec4 diffuseColorMaterialRocket[nVerticesRocket];
+glm::vec4 vertexWarbird[nVerticesWarbird];
+glm::vec3 normalWarbird[nVerticesWarbird];
+glm::vec4 diffuseColorMaterialWarbird[nVerticesWarbird];
 
-// vectors for "modelPlanet"
-glm::vec4 vertexPlanet[nVerticesPlanet];
-glm::vec3 normalPlanet[nVerticesPlanet];
-glm::vec4 diffuseColorMaterialPlanet[nVerticesPlanet];
 
 // rotation variables
 glm::mat4 identity(1.0f); 
@@ -108,41 +106,77 @@ int timerDelay = 1000, frameCount = 0;
 
 
 void init (void) {
-  boundingRadius = loadTriModel(modelFile0, nVertices, vertex, diffuseColorMaterial, normal);
-  if (boundingRadius == -1.0f) {
-    printf("loadTriModel error:  returned -1.0f \n");
-    exit(1); }
-    else
-      printf("loaded %s model with %7.2f bounding radius \n", modelFile0, boundingRadius);
+  for(int i = 0; i < nShapes; i++) {
+	  if(i < 5){	   
+		  boundingRadius[i] = loadTriModel(modelFile[i], nVerticesSphere, vertexSphere, diffuseColorMaterialSphere, normalSphere);
+		  if (boundingRadius[i] == -1.0f) {
+			printf("loadTriModel error:  returned -1.0f \n");
+			exit(1); }
+			else
+			  printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
 
-  shaderProgram = loadShaders(vertexShaderFile,fragmentShaderFile);
-  glUseProgram(shaderProgram);
+		  shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
+		  glUseProgram(shaderProgram);
 
-  glGenVertexArrays( 1, &vao );
-  glBindVertexArray( vao );
+		  glGenVertexArrays( 1, &(vao[i]) );
+		  glBindVertexArray( vao[i] );
 
-  // Create and initialize a buffer object
-  GLuint buffer;
-  glGenBuffers( 1, &buffer );
-  glBindBuffer( GL_ARRAY_BUFFER, buffer );
-  glBufferData( GL_ARRAY_BUFFER, sizeof(vertex) + sizeof(diffuseColorMaterial) + sizeof(normal), NULL, GL_STATIC_DRAW );
-  glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(vertex), vertex );
-  glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertex), sizeof(diffuseColorMaterial), diffuseColorMaterial );
-  glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertex) + sizeof(diffuseColorMaterial), sizeof(normal), normal );
+		  glGenBuffers( 1, &(buffer[i]) );
+		  glBindBuffer( GL_ARRAY_BUFFER, buffer[i] );
+		  glBufferData( GL_ARRAY_BUFFER, sizeof(vertexSphere) + sizeof(diffuseColorMaterialSphere) + sizeof(normalSphere), NULL, GL_STATIC_DRAW );
+		  glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(vertexSphere), vertexSphere );
+		  glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexSphere), sizeof(diffuseColorMaterialSphere), diffuseColorMaterialSphere );
+		  glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexSphere) + sizeof(diffuseColorMaterialSphere), sizeof(normalSphere), normalSphere );
 
 
-  // set up vertex arrays (after shaders are loaded)
-  GLuint vPosition = glGetAttribLocation( shaderProgram, "vPosition" );
-  glEnableVertexAttribArray( vPosition );
-  glVertexAttribPointer( vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
+		  // set up vertex arrays (after shaders are loaded)
+		  vPosition[i] = glGetAttribLocation( shaderProgram, "vPosition" );
+		  glEnableVertexAttribArray( vPosition[i] );
+		  glVertexAttribPointer( vPosition[0], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
 
-  GLuint vColor = glGetAttribLocation( shaderProgram, "vColor" );
-  glEnableVertexAttribArray( vColor );
-  glVertexAttribPointer( vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertex)) );
+		  vColor[i] = glGetAttribLocation( shaderProgram, "vColor" );
+		  glEnableVertexAttribArray( vColor[i] );
+		  glVertexAttribPointer( vColor[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexSphere)) );
 
-  GLuint vNormal = glGetAttribLocation( shaderProgram, "vNormal" );
-  glEnableVertexAttribArray( vNormal);
-  glVertexAttribPointer( vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertex) + sizeof(diffuseColorMaterial)) );
+		  vNormal[i] = glGetAttribLocation( shaderProgram, "vNormal" );
+		  glEnableVertexAttribArray( vNormal[i]);
+		  glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexSphere) + sizeof(diffuseColorMaterialSphere)) );
+	  } else if(i == 5) {
+		  boundingRadius[i] = loadTriModel(modelFile[i], nVerticesWarbird, vertexWarbird, diffuseColorMaterialWarbird, normalWarbird);
+		  if (boundingRadius[i] == -1.0f) {
+			printf("loadTriModel error:  returned -1.0f \n");
+			exit(1); }
+			else
+			  printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
+
+		  shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
+		  glUseProgram(shaderProgram);
+
+		  glGenVertexArrays( 1, &(vao[i]) );
+		  glBindVertexArray( vao[i] );
+
+		  glGenBuffers( 1, &(buffer[i]) );
+		  glBindBuffer( GL_ARRAY_BUFFER, buffer[i] );
+		  glBufferData( GL_ARRAY_BUFFER, sizeof(vertexWarbird) + sizeof(diffuseColorMaterialWarbird) + sizeof(normalWarbird), NULL, GL_STATIC_DRAW );
+		  glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(vertexWarbird), vertexWarbird );
+		  glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexWarbird), sizeof(diffuseColorMaterialWarbird), diffuseColorMaterialWarbird );
+		  glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexWarbird) + sizeof(diffuseColorMaterialWarbird), sizeof(normalWarbird), normalWarbird );
+
+
+		  // set up vertex arrays (after shaders are loaded)
+		  vPosition[i] = glGetAttribLocation( shaderProgram, "vPosition" );
+		  glEnableVertexAttribArray( vPosition[i] );
+		  glVertexAttribPointer( vPosition[0], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
+
+		  vColor[i] = glGetAttribLocation( shaderProgram, "vColor" );
+		  glEnableVertexAttribArray( vColor[i] );
+		  glVertexAttribPointer( vColor[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexWarbird)) );
+
+		  vNormal[i] = glGetAttribLocation( shaderProgram, "vNormal" );
+		  glEnableVertexAttribArray( vNormal[i]);
+		  glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexWarbird) + sizeof(diffuseColorMaterialWarbird)) );
+	  }
+  }
 
   Model = glGetUniformLocation(shaderProgram, "Model");
   ViewProj = glGetUniformLocation(shaderProgram, "ViewProject");
@@ -178,6 +212,7 @@ void updateTitle() {
   }
 
 void display(void) {
+<<<<<<< HEAD
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	  // update model matrix, set MVP, draw
 	  for(int i = 0; i < nShapes; i++) { 
@@ -193,6 +228,24 @@ void display(void) {
 	glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
 	glDrawArrays(GL_TRIANGLES, 0, nVerticesRocket);
 
+=======
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  // update model matrix, set MVP, draw
+  for(int i = 0; i < nShapes; i++) { 
+	modelMatrix = shape[i]->getModelMatrix(shape[2]->translationMatrix, shape[2]->rotationMatrix); 
+    glBindVertexArray( vao[i] );
+    viewProjectionMatrix = projectionMatrix * viewMatrix; 
+	glEnableVertexAttribArray( vPosition[i]);
+	glEnableVertexAttribArray( vColor[i]);
+	glEnableVertexAttribArray( vNormal[i]);
+    glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
+    glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
+	if(i < 5)
+		glDrawArrays(GL_TRIANGLES, 0, nVerticesSphere);
+	else if(i==5)
+		glDrawArrays(GL_TRIANGLES, 0, nVerticesWarbird);
+    }
+>>>>>>> Just-in-Case
   glutSwapBuffers();
   frameCount++;
   }
@@ -258,7 +311,7 @@ int main(int argc, char* argv[]) {
   glutInitWindowSize(800, 600);
   glutInitContextVersion(3, 3);
   glutInitContextProfile(GLUT_CORE_PROFILE);
-  glutCreateWindow("465 manyCubes Example {f, t, r} : front view");
+  glutCreateWindow("465 Ruber Solar System {f, t, u, d, w} : front view");
   // initialize and verify glew
   glewExperimental = GL_TRUE;  // needed my home system 
   GLenum err = glewInit();  
