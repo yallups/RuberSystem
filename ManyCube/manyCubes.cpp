@@ -54,10 +54,7 @@ const GLuint nVerticesWarbird = 224 * 3;
 
 
 char * rocketModel = "rocket.tri";  // name of Rocket model file
-<<<<<<< HEAD
 char * planetModel = "planet.tri";  // name of Planet model file
-=======
->>>>>>> Just-in-Case
 const GLuint nVerticesRocket = 144 * 3;  // 3 vertices per line (surface) of model file  
 
 float boundingRadius[nShapes];  // modelFile's bounding radius
@@ -212,23 +209,23 @@ void updateTitle() {
   }
 
 void display(void) {
-<<<<<<< HEAD
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	  // update model matrix, set MVP, draw
-	  for(int i = 0; i < nShapes; i++) { 
-		modelMatrix = shape[i]->getModelMatrix(shape[2]->translationMatrix, shape[2]->rotationMatrix); 
-		viewProjectionMatrix = projectionMatrix * viewMatrix; 
-		glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
-		glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
-		glDrawArrays(GL_TRIANGLES, 0, nVertices);
-	  }
-	  modelMatrix = rocketship->getModelMatrix(rocketship->translationMatrix, rocketship->rotationMatrix); 
-	viewProjectionMatrix = projectionMatrix * viewMatrix; 
-	glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
-	glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
-	glDrawArrays(GL_TRIANGLES, 0, nVerticesRocket);
-
-=======
+//<<<<<<< HEAD
+//	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//	  // update model matrix, set MVP, draw
+//	  for(int i = 0; i < nShapes; i++) { 
+//		modelMatrix = shape[i]->getModelMatrix(shape[2]->translationMatrix, shape[2]->rotationMatrix); 
+//		viewProjectionMatrix = projectionMatrix * viewMatrix; 
+//		glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
+//		glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
+//		glDrawArrays(GL_TRIANGLES, 0, nVertices);
+//	  }
+//	  modelMatrix = rocketship->getModelMatrix(rocketship->translationMatrix, rocketship->rotationMatrix); 
+//	viewProjectionMatrix = projectionMatrix * viewMatrix; 
+//	glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
+//	glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
+//	glDrawArrays(GL_TRIANGLES, 0, nVerticesRocket);
+//
+//=======
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // update model matrix, set MVP, draw
   for(int i = 0; i < nShapes; i++) { 
@@ -245,7 +242,7 @@ void display(void) {
 	else if(i==5)
 		glDrawArrays(GL_TRIANGLES, 0, nVerticesWarbird);
     }
->>>>>>> Just-in-Case
+//>>>>>>> Just-in-Case
   glutSwapBuffers();
   frameCount++;
   }
@@ -274,17 +271,37 @@ void intervalTimer (int i) {
 // Quit or set the view
 void keyboard (unsigned char key, int x, int y) {
   switch(key) {
+	case 'b':
+		eye.b+=30; break;
+	case 'g':
+		eye.g+=30;break;
+	case 'p':
+		eye.p+=30;break;
+	case 'r':
+		eye.r+=30;break;
+	case 's':
+		eye.s+=30;break;
+	case 't' :
+		eye.t+=30;break;
+	case 'x' :
+		eye.x+=30;break;
+	case 'y':
+		eye.y+=30;break;
+	case 'z' :
+		eye.z+=30;break;
+
+
     case 033 : case 'q' :  case 'Q' : exit(EXIT_SUCCESS); break;
     case 'f' : case 'F' :  // front view
         eye = glm::vec3(0.0f, 0.0f, 4000.0f);   // eye is 4000 "out of screen" from origin
         at  = glm::vec3(0.0f, 0.0f,    0.0f);   // looking at origin
         up  = glm::vec3(0.0f, 1.0f,    0.0f);   // camera'a up vector
         strcpy(viewStr, " front view"); break;
-    case 't' : case 'T' :  // top view
-        eye = glm::vec3(0.0f, 4000.0f,  0.0f);   // eye is 4000 up from origin
-        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
-        up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
-        strcpy(viewStr, " top view"); break;
+    //case 't' : case 'T' :  // top view
+    //    eye = glm::vec3(0.0f, 4000.0f,  0.0f);   // eye is 4000 up from origin
+    //    at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
+    //    up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
+    //    strcpy(viewStr, " top view"); break;
     case 'u' : case 'U' :  // unum view
         eye = glm::vec3(0.0f, 3000.0f,  0.0f);   // eye is 3000 up from origin
         at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
