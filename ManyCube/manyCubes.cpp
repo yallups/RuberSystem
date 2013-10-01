@@ -41,23 +41,18 @@ Mike Barnes
 # define __INCLUDES465__   
 
 # include "Shape3D.hpp"
-# include "RocketShip.hpp"
 
 // Shapes
 const int nShapes = 6;
 Shape3D * shape[nShapes];
-RocketShip * rocketship;
 // Model for shapes
 char * modelFile[] = {"ruber.tri", "unum.tri", "duo.tri", "moon.tri", "moon.tri", "warbird.tri"};
 const GLuint nVerticesSphere = 264 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesWarbird = 224 * 3;
 
+char viewCase = 'n';
 
 char * rocketModel = "rocket.tri";  // name of Rocket model file
-<<<<<<< HEAD
-char * planetModel = "planet.tri";  // name of Planet model file
-=======
->>>>>>> Just-in-Case
 const GLuint nVerticesRocket = 144 * 3;  // 3 vertices per line (surface) of model file  
 
 float boundingRadius[nShapes];  // modelFile's bounding radius
@@ -66,7 +61,7 @@ int Index =  0;  // global variable indexing into VBO arrays
 
 // display state and "state strings" for title display
 // window title strings
-char baseStr[50] =    "465 manyCubes Example {f, t, r} : ";
+char baseStr[50] =    "465 Ruber Solar System {f, t, u, d, w} :";
 char fpsStr[15], viewStr[15] =    " front view";
 char titleStr [100]; 
 
@@ -193,7 +188,6 @@ void init (void) {
 
   // create shape
   for(int i = 0; i < nShapes; i++) shape[i] = new Shape3D(i);
-  rocketship = new RocketShip();
   printf("%d Shapes created \n", nShapes);
   }
 
@@ -211,28 +205,37 @@ void updateTitle() {
   glutSetWindowTitle( titleStr);
   }
 
-void display(void) {
-<<<<<<< HEAD
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	  // update model matrix, set MVP, draw
-	  for(int i = 0; i < nShapes; i++) { 
-		modelMatrix = shape[i]->getModelMatrix(shape[2]->translationMatrix, shape[2]->rotationMatrix); 
-		viewProjectionMatrix = projectionMatrix * viewMatrix; 
-		glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
-		glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
-		glDrawArrays(GL_TRIANGLES, 0, nVertices);
-	  }
-	  modelMatrix = rocketship->getModelMatrix(rocketship->translationMatrix, rocketship->rotationMatrix); 
-	viewProjectionMatrix = projectionMatrix * viewMatrix; 
-	glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
-	glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
-	glDrawArrays(GL_TRIANGLES, 0, nVerticesRocket);
+void updateView() {
+		glm::mat4 unum = shape[1]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat());
+		glm::mat4 duo = shape[2]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat());
+		glm::mat4 warbird = shape[5]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat());
+	switch(viewCase) {
+	case 'u' :// unum view
+		eye = glm::vec3(0.0f,  -3000.0f,  0.0f);   // eye is 3000 up from origin
+        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
+        up  = glm::vec3(0.0f,    0.0f, 1.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = (glm::lookAt(eye, at, up)*shape[1]->getTranslationMat()*shape[1]->getRotationMat()); 
+		break;
+    case 'd' : // duo view
+        eye = glm::vec3(0.0f,  2000.0f,  0.0f);   // eye is 3000 up from origin
+        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
+        up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = (glm::lookAt(eye, at, up)*shape[2]->getTranslationMat()*shape[2]->getRotationMat());
+		break;
+    case 'w' :  // warbird view
+        eye = glm::vec3(0.0f, 50.0f, -100.0f);   // eye is 3000 up from origin
+        at  = glm::vec3(0.0f,  0.0f,    0.0f);   // looking at origin  
+        up  = glm::vec3(0.0f,  1.0f,    0.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = (shape[5]->getModelMatrix(shape[2]->getTranslationMat(),shape[2]->getRotationMat())); 
+		break;
+	}
+  }
 
-=======
+void display(void) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // update model matrix, set MVP, draw
   for(int i = 0; i < nShapes; i++) { 
-	modelMatrix = shape[i]->getModelMatrix(shape[2]->translationMatrix, shape[2]->rotationMatrix); 
+	modelMatrix = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat()); 
     glBindVertexArray( vao[i] );
     viewProjectionMatrix = projectionMatrix * viewMatrix; 
 	glEnableVertexAttribArray( vPosition[i]);
@@ -245,9 +248,10 @@ void display(void) {
 	else if(i==5)
 		glDrawArrays(GL_TRIANGLES, 0, nVerticesWarbird);
     }
->>>>>>> Just-in-Case
   glutSwapBuffers();
   frameCount++;
+  if(viewCase != 'n')
+	  updateView();
   }
 
 // for use with Idle and intervalTimer functions 
@@ -260,6 +264,7 @@ void animate(void){
   glutPostRedisplay();
   }
 
+
 // Estimate FPS, use fixed interval timer to measure every second
 // timerDelay = 1000
 void intervalTimer (int i) { 
@@ -267,8 +272,8 @@ void intervalTimer (int i) {
   // display frames / second
   sprintf(fpsStr, " fps %4d", frameCount );
   frameCount = 0;
-  updateTitle();     
-  animate();  
+  updateTitle();
+  animate();
   }
 
 // Quit or set the view
@@ -276,32 +281,41 @@ void keyboard (unsigned char key, int x, int y) {
   switch(key) {
     case 033 : case 'q' :  case 'Q' : exit(EXIT_SUCCESS); break;
     case 'f' : case 'F' :  // front view
+		viewCase = 'n';
         eye = glm::vec3(0.0f, 0.0f, 4000.0f);   // eye is 4000 "out of screen" from origin
         at  = glm::vec3(0.0f, 0.0f,    0.0f);   // looking at origin
         up  = glm::vec3(0.0f, 1.0f,    0.0f);   // camera'a up vector
+		viewMatrix = glm::lookAt(eye, at, up);
         strcpy(viewStr, " front view"); break;
     case 't' : case 'T' :  // top view
+		viewCase = 'n';
         eye = glm::vec3(0.0f, 4000.0f,  0.0f);   // eye is 4000 up from origin
         at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
         up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = glm::lookAt(eye, at, up);
         strcpy(viewStr, " top view"); break;
     case 'u' : case 'U' :  // unum view
-        eye = glm::vec3(0.0f, 3000.0f,  0.0f);   // eye is 3000 up from origin
+		viewCase = 'u';
+        eye = glm::vec3(0.0f, 200.0f,  0.0f);   // eye is 3000 up from origin
         at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
         up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
-        strcpy(viewStr, " top view"); break;
+		viewMatrix = (glm::lookAt(eye, at, up)*shape[1]->getTranslationMat()*shape[1]->getRotationMat()); 
+        strcpy(viewStr, " unum view"); break;
     case 'd' : case 'D' :  // duo view
-        eye = glm::vec3(0.0f, 3000.0f,  0.0f);   // eye is 3000 up from origin
+		viewCase = 'd';
+        eye = glm::vec3(0.0f,  200.0f,  0.0f);   // eye is 3000 up from origin
         at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
         up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
-        strcpy(viewStr, " top view"); break;
+		viewMatrix = (glm::lookAt(eye, at, up)*shape[2]->getTranslationMat()*shape[2]->getRotationMat());
+        strcpy(viewStr, " duo view"); break;
     case 'w' : case 'W' :  // warbird view
-        eye = glm::vec3(0.0f, 3000.0f,  0.0f);   // eye is 3000 up from origin
-        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
-        up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
-        strcpy(viewStr, " top view"); break;
+		viewCase = 'w';
+        eye = glm::vec3(500.0f,   150.0f, 400.0f);   // eye is 3000 up from origin
+        at  = glm::vec3(500.0f,   100.0f, 500.0f);   // looking at origin  
+        up  = glm::vec3(0.0f,    1.0f,  0.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = glm::lookAt(eye, at, up);
+        strcpy(viewStr, " warbird view"); break;
     }
-  viewMatrix = glm::lookAt(eye, at, up);
   updateTitle();
   }
     
