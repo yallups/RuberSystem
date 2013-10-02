@@ -201,9 +201,12 @@ void reshape(int width, int height) {
 
 // update and display animation state in window title
 void updateTitle() {
+	char str[50];
+	//sprintf(str, "eye: X:%s Y:%s Z:", eye.x, eye.y, eye.z);
   strcpy(titleStr, baseStr);
   strcat(titleStr, viewStr);
   strcat(titleStr, fpsStr);
+  //strcat(titleStr, str);
   // printf("title string = %s \n", titleStr);
   glutSetWindowTitle( titleStr);
   }
@@ -269,9 +272,15 @@ void intervalTimer (int i) {
   }
 
 // Quit or set the view
+void keyboard (int key, int x, int y) {
+	switch(key) {
+		case GLUT_KEY_UP :
+			eye.z+=30;break;
+	}
+}
 void keyboard (unsigned char key, int x, int y) {
   switch(key) {
-	case 'b':
+	/*case 'b':
 		eye.b+=30; break;
 	case 'g':
 		eye.g+=30;break;
@@ -282,13 +291,47 @@ void keyboard (unsigned char key, int x, int y) {
 	case 's':
 		eye.s+=30;break;
 	case 't' :
-		eye.t+=30;break;
+		eye.t+=30;break;*/
 	case 'x' :
 		eye.x+=30;break;
 	case 'y':
 		eye.y+=30;break;
 	case 'z' :
 		eye.z+=30;break;
+	case 'X' :
+		eye.x-=30;break;
+	case 'Y':
+		eye.y-=30;break;
+	case 'Z' :
+		eye.z-=30;break;
+	case '8' :
+		shape[5]->moveForward();
+		break;
+	case '4' :
+		shape[5]->moveLeft();
+		break;
+	case '6' :
+		shape[5]->moveRight();
+		break;
+	case '2':
+		shape[5]->moveBackward();
+		break;
+	case '5' :
+		shape[5]->moveUp();
+		break;
+	case '0' :
+		shape[5]->moveDown();
+		break;
+	/*case 'X' :
+		eye.x-=30;break;
+	case 'Y':
+		eye.y-=30;break;
+	case 'Z' :
+		eye.z-=30;break;
+	case '8' :
+		eye.z+=30;break;
+	case '8' :
+		eye.z+=30;break;*/
 
 
     case 033 : case 'q' :  case 'Q' : exit(EXIT_SUCCESS); break;
@@ -346,6 +389,7 @@ int main(int argc, char* argv[]) {
   glutDisplayFunc(display);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboard);
+  glutSpecialFunc(keyboard);
   glutIdleFunc(animate);
   glutTimerFunc(timerDelay, intervalTimer, 1);
   glutMainLoop();
