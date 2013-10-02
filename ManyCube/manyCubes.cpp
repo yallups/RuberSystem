@@ -161,7 +161,7 @@ void init (void) {
 		  // set up vertex arrays (after shaders are loaded)
 		  vPosition[i] = glGetAttribLocation( shaderProgram, "vPosition" );
 		  glEnableVertexAttribArray( vPosition[i] );
-		  glVertexAttribPointer( vPosition[0], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
+		  glVertexAttribPointer( vPosition[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
 
 		  vColor[i] = glGetAttribLocation( shaderProgram, "vColor" );
 		  glEnableVertexAttribArray( vColor[i] );
@@ -206,27 +206,37 @@ void updateTitle() {
   }
 
 void updateView() {
-		glm::mat4 unum = shape[1]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat());
-		glm::mat4 duo = shape[2]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat());
-		glm::mat4 warbird = shape[5]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat());
+	    glm::mat4 unum = shape[1]->getTranslationMat();
+		glm::mat4 unumrot = shape[1]->getRotationMat();
+		unum = unumrot*unum;
+
+		glm::mat4 duo = shape[2]->getTranslationMat();
+		glm::mat4 duorot = shape[2]->getRotationMat();
+		duo = duorot*duo;
+
+		glm::mat4 warbird = shape[5]->getTranslationMat();
+		glm::mat4 warbirdrot = shape[5]->getRotationMat();
+		warbird = warbirdrot*warbird;
+
 	switch(viewCase) {
 	case 'u' :// unum view
-		eye = glm::vec3(0.0f,  -3000.0f,  0.0f);   // eye is 3000 up from origin
-        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
-        up  = glm::vec3(0.0f,    0.0f, 1.0f);   // camera's up is looking towards -Z vector
-		viewMatrix = (glm::lookAt(eye, at, up)*shape[1]->getTranslationMat()*shape[1]->getRotationMat()); 
+		eye = glm::vec3(unum[3].x,  200.0f, unum[3].z);   // eye is 3000 up from origin
+        at  = glm::vec3(unum[3].x,   0.0f,  unum[3].z);   // looking at origin  
+        up  = glm::vec3(0.0f,        0.0f,      -1.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = glm::lookAt(eye, at, up); 
 		break;
+
     case 'd' : // duo view
-        eye = glm::vec3(0.0f,  2000.0f,  0.0f);   // eye is 3000 up from origin
-        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
-        up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
-		viewMatrix = (glm::lookAt(eye, at, up)*shape[2]->getTranslationMat()*shape[2]->getRotationMat());
+        eye = glm::vec3(duo[3].x,  200.0f, duo[3].z);   // eye is 3000 up from origin
+        at  = glm::vec3(duo[3].x,    0.0f, duo[3].z);   // looking at origin  
+        up  = glm::vec3(0.0f,        0.0f,    -1.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = glm::lookAt(eye, at, up);
 		break;
     case 'w' :  // warbird view
-        eye = glm::vec3(0.0f, 50.0f, -100.0f);   // eye is 3000 up from origin
-        at  = glm::vec3(0.0f,  0.0f,    0.0f);   // looking at origin  
+        eye = glm::vec3(warbird[3].x, warbird[3].y+50.0f, warbird[3].z-100.0f);   // eye is 3000 up from origin
+        at  = glm::vec3(warbird[3].x, warbird[3].y+0.0f,         warbird[3].z);   // looking at origin  
         up  = glm::vec3(0.0f,  1.0f,    0.0f);   // camera's up is looking towards -Z vector
-		viewMatrix = (shape[5]->getModelMatrix(shape[2]->getTranslationMat(),shape[2]->getRotationMat())); 
+		viewMatrix = glm::lookAt(eye, at, up); 
 		break;
 	}
   }
