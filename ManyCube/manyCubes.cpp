@@ -46,9 +46,9 @@ Mike Barnes
 const int nShapes = 6;
 Shape3D * shape[nShapes];
 // Model for shapes
-char * modelFile[] = {"ruber.tri", "unum.tri", "duo.tri", "moon.tri", "moon.tri", "warbird.tri"};
+char * modelFile[] = {"ruber.tri", "unum.tri", "duo.tri", "moon.tri", "moon.tri", "ship03_color.tri"};
 const GLuint nVerticesSphere = 264 * 3;  // 3 vertices per line (surface) of model file  
-const GLuint nVerticesWarbird = 224 * 3;
+const GLuint nVerticesWarbird = 980 * 3;
 
 char viewCase = 'n';
 
@@ -289,46 +289,15 @@ void intervalTimer (int i) {
   animate();
   }
 
-// Quit or set the view
-void keyboard (int key, int x, int y) {
-	switch(key) {
-		case GLUT_KEY_UP :
-			eye.z+=30;break;
-	}
-}
 void keyboard (unsigned char key, int x, int y) {
   switch(key) {
-	/*case 'b':
-		eye.b+=30; break;
-	case 'g':
-		eye.g+=30;break;
-	case 'p':
-		eye.p+=30;break;
-	case 'r':
-		eye.r+=30;break;
-	case 's':
-		eye.s+=30;break;
-	case 't' :
-		eye.t+=30;break;*/
-	case 'x' :
-		eye.x+=30;break;
-	case 'y':
-		eye.y+=30;break;
-	case 'z' :
-		eye.z+=30;break;
-	case 'X' :
-		eye.x-=30;break;
-	case 'Y':
-		eye.y-=30;break;
-	case 'Z' :
-		eye.z-=30;break;
 	case '8' :
 		shape[5]->moveForward();
 		break;
-	case '4' :
+	case '7' :
 		shape[5]->moveLeft();
 		break;
-	case '6' :
+	case '9' :
 		shape[5]->moveRight();
 		break;
 	case '2':
@@ -340,52 +309,49 @@ void keyboard (unsigned char key, int x, int y) {
 	case '0' :
 		shape[5]->moveDown();
 		break;
-	/*case 'X' :
-		eye.x-=30;break;
-	case 'Y':
-		eye.y-=30;break;
-	case 'Z' :
-		eye.z-=30;break;
-	case '8' :
-		eye.z+=30;break;
-	case '8' :
-		eye.z+=30;break;*/
-    case 033 : case 'q' :  case 'Q' : exit(EXIT_SUCCESS); break;
+    case 033 : case 'q' :  case 'Q' : 
+		exit(EXIT_SUCCESS); 
+		break;
     case 'f' : case 'F' :  // front view
 		viewCase = 'n';
         eye = glm::vec3(0.0f, 0.0f, 4000.0f);   // eye is 4000 "out of screen" from origin
         at  = glm::vec3(0.0f, 0.0f,    0.0f);   // looking at origin
         up  = glm::vec3(0.0f, 1.0f,    0.0f);   // camera'a up vector
 		viewMatrix = glm::lookAt(eye, at, up);
-        strcpy(viewStr, " front view"); break;
+        strcpy(viewStr, " front view"); 
+		break;
     case 't' : case 'T' :  // top view
 		viewCase = 'n';
         eye = glm::vec3(0.0f, 4000.0f,  0.0f);   // eye is 4000 up from origin
         at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
         up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up);
-        strcpy(viewStr, " top view"); break;
+        strcpy(viewStr, " top view"); 
+		break;
     case 'u' : case 'U' :  // unum view
 		viewCase = 'u';
         eye = glm::vec3(0.0f, 200.0f,  0.0f);   // eye is 3000 up from origin
         at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
         up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = (glm::lookAt(eye, at, up)*shape[1]->getTranslationMat()*shape[1]->getRotationMat()); 
-        strcpy(viewStr, " unum view"); break;
+        strcpy(viewStr, " unum view"); 
+		break;
     case 'd' : case 'D' :  // duo view
 		viewCase = 'd';
         eye = glm::vec3(0.0f,  200.0f,  0.0f);   // eye is 3000 up from origin
         at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
         up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = (glm::lookAt(eye, at, up)*shape[2]->getTranslationMat()*shape[2]->getRotationMat());
-        strcpy(viewStr, " duo view"); break;
+        strcpy(viewStr, " duo view"); 
+		break;
     case 'w' : case 'W' :  // warbird view
 		viewCase = 'w';
         eye = glm::vec3(500.0f,   150.0f, 400.0f);   // eye is 3000 up from origin
         at  = glm::vec3(500.0f,   100.0f, 500.0f);   // looking at origin  
         up  = glm::vec3(0.0f,    1.0f,  0.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up);
-        strcpy(viewStr, " warbird view"); break;
+        strcpy(viewStr, " warbird view"); 
+		break;
     }
   updateTitle();
   }
@@ -414,7 +380,6 @@ int main(int argc, char* argv[]) {
   glutDisplayFunc(display);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboard);
-  glutSpecialFunc(keyboard);
   glutIdleFunc(animate);
   glutTimerFunc(timerDelay, intervalTimer, 1);
   glutMainLoop();
