@@ -16,15 +16,21 @@ private :
 
   int id;
   glm::mat4 scaleMatrix;
+  glm::mat4 rotationMatrix;
+  glm::mat4 translationMatrix;
   glm::vec3 rotationAxis; 
   glm::vec3 translation; 
   float radians; 
   bool orbital;
 
 public:
-	
-  glm::mat4 rotationMatrix;
-  glm::mat4 translationMatrix;
+
+  glm::mat4 getRotationMat(){
+	  return rotationMatrix;
+  }
+  glm::mat4 getTranslationMat(){
+	  return translationMatrix;
+  }
 
   Shape3D(int number) {
 		id = number;  // for debugging
@@ -80,7 +86,7 @@ public:
     if (orbital) // orbital rotation
 	{
 		if(id>2){
-			return (rotMatrix * tranMatrix *rotationMatrix * translationMatrix * scaleMatrix);
+			return (rotMatrix * tranMatrix * rotationMatrix * translationMatrix * scaleMatrix);
 		}
 		return (rotationMatrix * translationMatrix * scaleMatrix);
 	}
