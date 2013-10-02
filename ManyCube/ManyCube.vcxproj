@@ -76,6 +76,7 @@
     <ClCompile Include="manyCubes.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RocketShip.hpp" />
     <ClInclude Include="Shape3D.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
