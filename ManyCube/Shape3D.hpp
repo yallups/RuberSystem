@@ -100,19 +100,31 @@ public:
     }  
   void moveForward() {
 	  //translation.z+=3;
-	  translationMatrix = glm::translate(translationMatrix, glm::vec3(0,0,10));
+	  glm::vec3 direction = glm::vec3(10*rotationMatrix[2].x,0,10*rotationMatrix[2].z);
+	  translationMatrix = glm::translate(translationMatrix, glm::vec3(direction.x,0,direction.z));
   }
   void moveBackward() {
 	  //translation.z-=3;
-	  translationMatrix = glm::translate(translationMatrix, glm::vec3(0,0,-10));
+	  glm::vec3 direction = glm::vec3(-10*rotationMatrix[2].x,0,-10*rotationMatrix[2].z);
+	  translationMatrix = glm::translate(translationMatrix, glm::vec3(direction.x,0,direction.z));
   }
   void moveLeft() {
 	  //translation.x+=3;
-	  translationMatrix = glm::translate(translationMatrix, glm::vec3(10,0,0));
+	  glm::mat4 rotationMatrix2 = glm::rotate(rotationMatrix, PI/2, glm::vec3(0.0f,1.0f,0.0f));
+	  glm::vec3 direction = glm::vec3(10*(rotationMatrix2[2].x), 0, 10*(rotationMatrix2[2].z));
+	  translationMatrix = glm::translate(translationMatrix, glm::vec3(direction.x,0,direction.z));
+  }
+  void turnLeft() {
+	  rotationMatrix = glm::rotate(rotationMatrix, 0.02f, rotationAxis);
   }
   void moveRight() {
 	  //translation.x-=3;
-	  translationMatrix = glm::translate(translationMatrix, glm::vec3(-10,0,0));
+	  glm::mat4 rotationMatrix2 = glm::rotate(rotationMatrix, 3*PI/2, glm::vec3(0.0f,1.0f,0.0f));
+	  glm::vec3 direction = glm::vec3(10*(rotationMatrix2[2].x), 0, 10*(rotationMatrix2[2].z));
+	  translationMatrix = glm::translate(translationMatrix, glm::vec3(direction.x,0,direction.z));
+  }
+  void turnRight() {
+	  rotationMatrix = glm::rotate(rotationMatrix, -0.02f, rotationAxis);
   }
   void moveUp() {
 	  //translation.y+=3;

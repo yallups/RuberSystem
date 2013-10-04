@@ -219,7 +219,9 @@ void updateView() {
 
 		glm::mat4 warbird = shape[5]->getTranslationMat();
 		glm::mat4 warbirdrot = shape[5]->getRotationMat();
-		warbird = warbirdrot*warbird;
+		glm::mat4 trans = glm::translate(glm::mat4(), glm::vec3(0, 50.0f, -100.0f));
+		warbird = warbird*warbirdrot;
+		trans = warbird*trans;
 
 	switch(viewCase) {
 	case 'u' :// unum view
@@ -236,8 +238,8 @@ void updateView() {
 		viewMatrix = glm::lookAt(eye, at, up);
 		break;
     case 'w' :  // warbird view
-        eye = glm::vec3(warbird[3].x, warbird[3].y+50.0f, warbird[3].z-100.0f);   // eye is 3000 up from origin
-        at  = glm::vec3(warbird[3].x, warbird[3].y+0.0f,         warbird[3].z);   // looking at origin  
+        eye = glm::vec3(trans[3].x,   trans[3].y,   trans[3].z);   // eye is 3000 up from origin
+        at  = glm::vec3(warbird[3].x, warbird[3].y, warbird[3].z);   // looking at origin  
         up  = glm::vec3(0.0f,  1.0f,    0.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up); 
 		break;
@@ -290,15 +292,32 @@ void intervalTimer (int i) {
   }
 
 void keyboard (unsigned char key, int x, int y) {
+glm::mat4 unum = shape[1]->getTranslationMat();
+glm::mat4 unumrot = shape[1]->getRotationMat();
+unum = unumrot*unum;
+
+glm::mat4 duo = shape[2]->getTranslationMat();
+glm::mat4 duorot = shape[2]->getRotationMat();
+duo = duorot*duo;
+
+glm::mat4 warbird = shape[5]->getTranslationMat();
+glm::mat4 warbirdrot = shape[5]->getRotationMat();
+warbird = warbirdrot*warbird;
   switch(key) {
 	case '8' :
 		shape[5]->moveForward();
 		break;
-	case '7' :
+	case '4' :
 		shape[5]->moveLeft();
 		break;
-	case '9' :
+	case '7' :
+		shape[5]->turnLeft();
+		break;
+	case '6' :
 		shape[5]->moveRight();
+		break;
+	case '9' :
+		shape[5]->turnRight();
 		break;
 	case '2':
 		shape[5]->moveBackward();
@@ -322,7 +341,7 @@ void keyboard (unsigned char key, int x, int y) {
 		break;
     case 't' : case 'T' :  // top view
 		viewCase = 'n';
-        eye = glm::vec3(0.0f, 4000.0f,  0.0f);   // eye is 4000 up from origin
+        eye = glm::vec3(0.0f, 2000.0f,  0.0f);   // eye is 4000 up from origin
         at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
         up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up);
@@ -330,26 +349,26 @@ void keyboard (unsigned char key, int x, int y) {
 		break;
     case 'u' : case 'U' :  // unum view
 		viewCase = 'u';
-        eye = glm::vec3(0.0f, 200.0f,  0.0f);   // eye is 3000 up from origin
-        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
-        up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
-		viewMatrix = (glm::lookAt(eye, at, up)*shape[1]->getTranslationMat()*shape[1]->getRotationMat()); 
+		eye = glm::vec3(unum[3].x,  200.0f, unum[3].z);   // eye is 3000 up from origin
+        at  = glm::vec3(unum[3].x,   0.0f,  unum[3].z);   // looking at origin  
+        up  = glm::vec3(0.0f,        0.0f,      -1.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = glm::lookAt(eye, at, up); 
         strcpy(viewStr, " unum view"); 
 		break;
     case 'd' : case 'D' :  // duo view
 		viewCase = 'd';
-        eye = glm::vec3(0.0f,  200.0f,  0.0f);   // eye is 3000 up from origin
-        at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
-        up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
-		viewMatrix = (glm::lookAt(eye, at, up)*shape[2]->getTranslationMat()*shape[2]->getRotationMat());
+        eye = glm::vec3(duo[3].x,  200.0f, duo[3].z);   // eye is 3000 up from origin
+        at  = glm::vec3(duo[3].x,    0.0f, duo[3].z);   // looking at origin  
+        up  = glm::vec3(0.0f,        0.0f,    -1.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = glm::lookAt(eye, at, up);
         strcpy(viewStr, " duo view"); 
 		break;
     case 'w' : case 'W' :  // warbird view
 		viewCase = 'w';
-        eye = glm::vec3(500.0f,   150.0f, 400.0f);   // eye is 3000 up from origin
-        at  = glm::vec3(500.0f,   100.0f, 500.0f);   // looking at origin  
-        up  = glm::vec3(0.0f,    1.0f,  0.0f);   // camera's up is looking towards -Z vector
-		viewMatrix = glm::lookAt(eye, at, up);
+        eye = glm::vec3(warbird[3].x, warbird[3].y+50.0f, warbird[3].z-100.0f);   // eye is 3000 up from origin
+        at  = glm::vec3(warbird[3].x, warbird[3].y+0.0f,         warbird[3].z);   // looking at origin  
+        up  = glm::vec3(0.0f,  1.0f,    0.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = glm::lookAt(eye, at, up); 
         strcpy(viewStr, " warbird view"); 
 		break;
     }
