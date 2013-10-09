@@ -46,8 +46,8 @@ Mike Barnes
 const int nShapes = 6;
 Shape3D * shape[nShapes];
 // Model for shapes
-char * modelFile[] = {"ruber.tri", "unum.tri", "duo.tri", "moon.tri", "moon.tri", "ship03_color.tri"};
-const GLuint nVerticesSphere = 264 * 3;  // 3 vertices per line (surface) of model file  
+char * modelFile[] = {"sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "ship03_color.tri"};// "ruber.tri", "unum.tri", "duo.tri", "moon.tri", "moon.tri"
+const GLuint nVerticesSphere = 4900 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesWarbird = 980 * 3;
 
 char viewCase = 'n';
@@ -173,8 +173,8 @@ void init (void) {
 	  }
   }
 
-  Model = glGetUniformLocation(shaderProgram, "Model");
-  ViewProj = glGetUniformLocation(shaderProgram, "ViewProject");
+  Model = glGetUniformLocation(shaderProgram, "ModelView");
+  ViewProj = glGetUniformLocation(shaderProgram, "Projection");
   
 // initially use a front view
   eye = glm::vec3(0.0f, 0.0f, 2000.0f);   // eye is 1000 "out of screen" from origin
@@ -193,7 +193,7 @@ void init (void) {
 
 void reshape(int width, int height) {
   glViewport(0, 0, width, height);
-  projectionMatrix = glm::perspective(glm::radians(45.0f), (GLfloat) width /  (GLfloat) height, 1.0f, 10000.0f); 
+  projectionMatrix = glm::perspective(glm::radians(60.0f), (GLfloat) width /  (GLfloat) height, 1.0f, 10000.0f); 
   }
 
 // update and display animation state in window title
@@ -219,7 +219,7 @@ void updateView() {
 
 		glm::mat4 warbird = shape[5]->getTranslationMat();
 		glm::mat4 warbirdrot = shape[5]->getRotationMat();
-		glm::mat4 trans = glm::translate(glm::mat4(), glm::vec3(0, 50.0f, -100.0f));
+		glm::mat4 trans = glm::translate(glm::mat4(), glm::vec3(0, 50.0f, -120.0f));
 		warbird = warbird*warbirdrot;
 		trans = warbird*trans;
 
@@ -230,16 +230,15 @@ void updateView() {
         up  = glm::vec3(0.0f,        0.0f,      -1.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up); 
 		break;
-
     case 'd' : // duo view
-        eye = glm::vec3(duo[3].x,  200.0f, duo[3].z);   // eye is 3000 up from origin
+        eye = glm::vec3(duo[3].x,  300.0f, duo[3].z);   // eye is 3000 up from origin
         at  = glm::vec3(duo[3].x,    0.0f, duo[3].z);   // looking at origin  
         up  = glm::vec3(0.0f,        0.0f,    -1.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up);
 		break;
     case 'w' :  // warbird view
         eye = glm::vec3(trans[3].x,   trans[3].y,   trans[3].z);   // eye is 3000 up from origin
-        at  = glm::vec3(warbird[3].x, warbird[3].y, warbird[3].z);   // looking at origin  
+        at  = glm::vec3(warbird[3].x, trans[3].y, warbird[3].z);   // looking at origin  
         up  = glm::vec3(0.0f,  1.0f,    0.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up); 
 		break;
