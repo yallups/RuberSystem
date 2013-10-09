@@ -249,6 +249,8 @@ void updateView() {
 void display(void) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // update model matrix, set MVP, draw
+  if(viewCase != 'n')
+	  updateView();
   for(int i = 0; i < nShapes; i++) { 
 	modelMatrix = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat()); 
     glBindVertexArray( vao[i] );
@@ -265,8 +267,7 @@ void display(void) {
     }
   glutSwapBuffers();
   frameCount++;
-  if(viewCase != 'n')
-	  updateView();
+  
   }
 
 // for use with Idle and intervalTimer functions 
