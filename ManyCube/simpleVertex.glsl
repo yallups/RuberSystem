@@ -1,4 +1,4 @@
-  /*
+/*
 vertexReview1.glsl
 
 Vertex shader for light effects.
@@ -32,3 +32,4 @@ void main(void) {
   vs_normal = mat3(ModelView) * vNormal; 
   vsColor = vColor;
   }
+ 
