@@ -104,11 +104,11 @@ public:
   }
   void turnUp() {
 	  rotationAxis = glm::vec3(1.0f,0.0f,0.0f);
-	  rotationMatrix = glm::rotate(rotationMatrix, 0.02f, rotationAxis);
+	  rotationMatrix = glm::rotate(rotationMatrix, -0.02f, rotationAxis);
   }
   void turnDown() {
 	  rotationAxis = glm::vec3(1.0f,0.0f,0.0f);
-	  rotationMatrix = glm::rotate(rotationMatrix, -0.02f, rotationAxis);
+	  rotationMatrix = glm::rotate(rotationMatrix, 0.02f, rotationAxis);
   }
   void moveBackward() {
 	  glm::vec3 direction = glm::vec3(-10*rotationMatrix[2].x,-10*rotationMatrix[2].y,-10*rotationMatrix[2].z);

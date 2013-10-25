@@ -223,9 +223,14 @@ void updateView() {
 
 	glm::mat4 warbird = shape[5]->getTranslationMat();
 	glm::mat4 warbirdrot = shape[5]->getRotationMat();
-	glm::mat4 trans = glm::translate(glm::mat4(), glm::vec3(0, 50.0f, -120.0f));
-	warbird = warbird*warbirdrot;
-	trans = warbird*trans;
+
+	glm::vec3 direction = glm::vec3(-120*warbirdrot[2].x,-120*warbirdrot[2].y,-120*warbirdrot[2].z);
+	glm::mat4 eyePosition = glm::translate(warbird, glm::vec3(direction.x,direction.y,direction.z)); //translate backward from warbird
+
+	glm::mat4 rotationMatrix2 = glm::rotate(warbirdrot, 3*PI/2, glm::vec3(1.0f,0.0f,0.0f));
+	eyePosition = glm::translate(eyePosition, glm::vec3(0, 50*(rotationMatrix2[2].y), 0)); //translate up from other translate
+
+	warbird = warbird * warbirdrot;
 
 	switch(viewCase) {
 	case 'u' :// unum view
@@ -241,9 +246,9 @@ void updateView() {
 		viewMatrix = glm::lookAt(eye, at, up);
 		break;
 	case 'w' :  // warbird view
-		eye = glm::vec3(trans[3].x,   trans[3].y,   trans[3].z);   // eye is 3000 up from origin
-		at  = glm::vec3(warbird[3].x, warbird[3].y+50.0f, warbird[3].z);   // looking at origin  
-		up  = glm::vec3(0.0f,  1.0f,    0.0f);   // camera's up is looking towards -Z vector
+		eye = glm::vec3(eyePosition[3].x,   eyePosition[3].y,   eyePosition[3].z);   // eye is 3000 up from origin
+		at  = glm::vec3(warbird[3].x, warbird[3].y, warbird[3].z);   // looking at origin  
+		up  = glm::vec3(warbirdrot[2].x,  warbirdrot[2].y, warbirdrot[2].z);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up); 
 		break;
 	}
