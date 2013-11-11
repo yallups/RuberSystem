@@ -43,12 +43,13 @@ Mike Barnes
 # include "Shape3D.hpp"
 
 // Shapes
-const int nShapes = 6;
+const int nShapes = 8;
 Shape3D * shape[nShapes];
 // Model for shapes
-char * modelFile[] = {"sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "ship03_color.tri"};// "ruber.tri", "unum.tri", "duo.tri", "moon.tri", "moon.tri"
+char * modelFile[] = {"sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "ship03_color.tri", "cube2.tri", "cube2.tri"};// "ruber.tri", "unum.tri", "duo.tri", "moon.tri", "moon.tri"
 const GLuint nVerticesSphere = 4900 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesWarbird = 980 * 3;
+const GLuint nVerticesMissleSite = 12 * 3; // missle sites
 
 char viewCase = 'n';
 
@@ -93,6 +94,10 @@ glm::vec4 vertexWarbird[nVerticesWarbird];
 glm::vec3 normalWarbird[nVerticesWarbird];
 glm::vec4 diffuseColorMaterialWarbird[nVerticesWarbird];
 
+// vectors for "MissleSites"
+glm::vec4 vertexMissleSite[nVerticesMissleSite];
+glm::vec3 normalMissleSite[nVerticesMissleSite];
+glm::vec4 diffuseColorMaterialMissleSite[nVerticesMissleSite];
 
 // rotation variables
 glm::mat4 identity(1.0f); 
@@ -173,6 +178,44 @@ void init (void) {
 			vNormal[i] = glGetAttribLocation( shaderProgram, "vNormal" );
 			glEnableVertexAttribArray( vNormal[i]);
 			glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexWarbird) + sizeof(diffuseColorMaterialWarbird)) );
+
+
+			Model = glGetUniformLocation(shaderProgram, "ModelView");
+			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
+		} else if (i > 5) {
+			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissleSite, vertexMissleSite, diffuseColorMaterialMissleSite, normalMissleSite);
+			if (boundingRadius[i] == -1.0f) {
+				printf("loadTriModel error:  returned -1.0f \n");
+				exit(1); }
+			else
+				printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
+
+			shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
+			glUseProgram(shaderProgram);
+
+			glGenVertexArrays( 1, &(vao[i]) );
+			glBindVertexArray( vao[i] );
+
+			glGenBuffers( 1, &(buffer[i]) );
+			glBindBuffer( GL_ARRAY_BUFFER, buffer[i] );
+			glBufferData( GL_ARRAY_BUFFER, sizeof(vertexMissleSite) + sizeof(diffuseColorMaterialMissleSite) + sizeof(normalMissleSite), NULL, GL_STATIC_DRAW );
+			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(vertexMissleSite), vertexMissleSite );
+			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissleSite), sizeof(diffuseColorMaterialMissleSite), diffuseColorMaterialMissleSite );
+			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissleSite) + sizeof(diffuseColorMaterialMissleSite), sizeof(normalMissleSite), normalMissleSite );
+
+
+			// set up vertex arrays (after shaders are loaded)
+			vPosition[i] = glGetAttribLocation( shaderProgram, "vPosition" );
+			glEnableVertexAttribArray( vPosition[i] );
+			glVertexAttribPointer( vPosition[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
+
+			vColor[i] = glGetAttribLocation( shaderProgram, "vColor" );
+			glEnableVertexAttribArray( vColor[i] );
+			glVertexAttribPointer( vColor[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissleSite)) );
+
+			vNormal[i] = glGetAttribLocation( shaderProgram, "vNormal" );
+			glEnableVertexAttribArray( vNormal[i]);
+			glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissleSite) + sizeof(diffuseColorMaterialMissleSite)) );
 
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
@@ -259,7 +302,13 @@ void display(void) {
 	if(viewCase != 'n')
 		updateView();
 	for(int i = 0; i < nShapes; i++) { 
-		modelMatrix = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat()); 
+		if (i < 6) {
+			modelMatrix = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat()); 
+		} else if (i == 6) {
+			modelMatrix = shape[i]->getModelMatrix(shape[1]->getTranslationMat(), shape[1]->getRotationMat()); 
+		} else {
+			modelMatrix = shape[i]->getModelMatrix(shape[3]->getTranslationMat(), shape[3]->getRotationMat()); 
+		}
 		glBindVertexArray( vao[i] );
 		viewProjectionMatrix = projectionMatrix * viewMatrix; 
 		glEnableVertexAttribArray( vPosition[0]);
@@ -271,6 +320,8 @@ void display(void) {
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesSphere);
 		else if(i==5)
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesWarbird);
+		else if(i > 5)
+			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissleSite);
 	}
 	glutSwapBuffers();
 	frameCount++;
@@ -284,6 +335,7 @@ void animate(void){
 	for(int i = 0; i < nShapes; i++) {
 		shape[i] -> update();
 	}
+
 	glutPostRedisplay();
 }
 
@@ -383,7 +435,10 @@ void keyboard (unsigned char key, int x, int y) {
 		shape[5]->turnRight();
 		break;
 	case '1':
-		shape[5]->rollLeft();
+		printf("shape1: %s", shape[1]->getTranslationMat());
+		printf("shape6: %s", shape[6]->getTranslationMat());
+		printf("shape4: %s", shape[4]->getTranslationMat());
+		printf("shape7: %s", shape[7]->getTranslationMat());
 		break;
 	case '3':
 		shape[5]->rollRight();

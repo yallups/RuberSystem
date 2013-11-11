@@ -31,16 +31,6 @@ public:
   glm::mat4 getTranslationMat(){
 	  return translationMatrix;
   }
-  void setRotationMat(glm::mat4 rtMat){
-	  rotationMatrix = rtMat;
-  }
-  void setTranslationMat(glm::mat4 tMat){
-	  translationMatrix = tMat;
-  }
-  void setPostion(glm::mat4 tm, glm::mat4 rm){
-	  translationMatrix = tm;
-	  rotationMatrix = rm;
-  }
 
   Shape3D(int number) {
 		id = number;  // for debugging
@@ -86,21 +76,6 @@ public:
 				rotationAxis = glm::vec3(0,  1, 0);
 				radians = glm::radians(0.0f); //No Rotation
 				orbital = false;
-				break;
-			case 6:
-				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle site Unum
-				translationMatrix = glm::translate(glm::mat4(), glm::vec3(20, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
-				//set cube's  rotation axis and rotation radians
-				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.2f); //Rotate around Duo
-				orbital = true;
-				break;
-			case 7: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle site Secundus
-				translationMatrix = glm::translate(glm::mat4(), glm::vec3(20, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
-				//set cube's  rotation axis and rotation radians
-				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.2f); //No Rotation
-				orbital = true;
 				break;
 		}
 		rotationMatrix = glm::mat4();  // no initial orientation
