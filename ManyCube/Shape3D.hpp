@@ -25,6 +25,8 @@ private :
 
 public:
 
+	int missiles;
+
   glm::mat4 getRotationMat(){
 	  return rotationMatrix;
   }
@@ -43,6 +45,7 @@ public:
   }
 
   Shape3D(int number) {
+		missiles = 0;
 		id = number;  // for debugging
 		switch(id) {
 			case 0: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(200, 200, 200));  // make Ruber
@@ -86,6 +89,7 @@ public:
 				rotationAxis = glm::vec3(0,  1, 0);
 				radians = glm::radians(0.0f); //No Rotation
 				orbital = false;
+				missiles = 10;
 				break;
 			case 6:
 				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle site Unum
@@ -94,6 +98,7 @@ public:
 				rotationAxis = glm::vec3(0,  1, 0);
 				radians = glm::radians(0.2f); //Rotate around Duo
 				orbital = true;
+				missiles = 5;
 				break;
 			case 7: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle site Secundus
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(20, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
@@ -101,12 +106,17 @@ public:
 				rotationAxis = glm::vec3(0,  1, 0);
 				radians = glm::radians(0.2f); //No Rotation
 				orbital = true;
+				missiles = 5;
 				break;
+
 		}
 		rotationMatrix = glm::mat4();  // no initial orientation
 		// determine rotation type
 	}
 
+   glm::mat4 getModelMatrix() {
+	   return getModelMatrix(glm::mat4(),glm::mat4());
+   }
    glm::mat4 getModelMatrix(glm::mat4 tranMatrix, glm::mat4 rotMatrix) {
     if (orbital) // orbital rotation
 	{
@@ -176,5 +186,18 @@ public:
 	  glm::mat4 rotationMatrix2 = glm::rotate(rotationMatrix, PI/2, glm::vec3(1.0f,0.0f,0.0f));
 	  glm::vec3 direction = glm::vec3(0, 10*(rotationMatrix2[2].y), 0);
 	  translationMatrix = glm::translate(translationMatrix, glm::vec3(0,direction.y,0));
+  }
+  Shape3D fireMissile(glm::vec3 direction) {
+	  if(missiles) {
+
+		  //Make new shape that looks like a missle
+		  Missile missile = new Missile(direction, getModelMatrix());
+
+		  // set it in motion with an constant translation in its positivve direction
+
+		  missiles--;
+		  //return the instance
+		  return missile;
+	  }
   }
   };  
