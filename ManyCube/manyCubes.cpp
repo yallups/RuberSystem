@@ -146,6 +146,8 @@ void init (void) {
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
 		} else if(i == 5) {
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesWarbird, vertexWarbird, diffuseColorMaterialWarbird, normalWarbird);
+			boundingRadius[i] = 50.0f;
+
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
 				exit(1); }
@@ -184,6 +186,7 @@ void init (void) {
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
 		} else if (i > 5) {
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissleSite, vertexMissleSite, diffuseColorMaterialMissleSite, normalMissleSite);
+			boundingRadius[i] = 30.0f;
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
 				exit(1); }
@@ -307,13 +310,13 @@ void display(void) {
 		} else if (i == 6) {
 			modelMatrix = shape[i]->getModelMatrix(shape[1]->getTranslationMat(), shape[1]->getRotationMat()); 
 		} else {
-			modelMatrix = shape[i]->getModelMatrix(shape[3]->getTranslationMat(), shape[3]->getRotationMat()); 
+			modelMatrix = shape[i]->getModelMatrix(shape[4]->getTranslationMat(), shape[4]->getRotationMat()); 
 		}
 		glBindVertexArray( vao[i] );
 		viewProjectionMatrix = projectionMatrix * viewMatrix; 
-		glEnableVertexAttribArray( vPosition[0]);
-		glEnableVertexAttribArray( vColor[0]);
-		glEnableVertexAttribArray( vNormal[0]);
+		glEnableVertexAttribArray( vPosition[i]);
+		glEnableVertexAttribArray( vColor[i]);
+		glEnableVertexAttribArray( vNormal[i]);
 		glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
 		glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
 		if(i < 5)
@@ -336,6 +339,37 @@ void animate(void){
 		shape[i] -> update();
 	}
 
+	glm::vec4 pos1;
+	glm::vec4 pos2;
+	
+	for(int i = 0; i < nShapes; i++) {
+		if (i < 6) {
+			pos1 = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
+		} else if (i == 6) {
+			pos1 = shape[i]->getModelMatrix(shape[1]->getTranslationMat(), shape[1]->getRotationMat())[3]; 
+		} else {
+			pos1 = shape[i]->getModelMatrix(shape[4]->getTranslationMat(), shape[4]->getRotationMat())[3]; 
+		}
+		for(int y = 5; y < 6; y++) {
+			if(y != i) {
+				if (y < 6) {
+					pos2 = shape[y]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
+				} else if (y == 6) {
+					pos2 = shape[y]->getModelMatrix(shape[1]->getTranslationMat(), shape[1]->getRotationMat())[3]; 
+				} else {
+					pos2 = shape[y]->getModelMatrix(shape[4]->getTranslationMat(), shape[4]->getRotationMat())[3]; 
+				}
+
+				float d = sqrtf(pow((pos1.x - pos2.x),2) + pow((pos1.z - pos2.z),2) + pow((pos1.z - pos2.z),2));
+
+				if (d - (boundingRadius[i] + boundingRadius[y]) <= 0) {
+					printf("BOOOOM! %d <--> %d\n", i, y);
+
+				}
+			}
+		}
+	}
+	
 	glutPostRedisplay();
 }
 

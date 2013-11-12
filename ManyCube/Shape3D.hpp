@@ -110,8 +110,10 @@ public:
    glm::mat4 getModelMatrix(glm::mat4 tranMatrix, glm::mat4 rotMatrix) {
     if (orbital) // orbital rotation
 	{
-		if(id>2){
-			return (rotMatrix * tranMatrix * rotationMatrix * translationMatrix * scaleMatrix);
+		if (id == 7) {
+			return (translationMatrix * rotationMatrix * rotMatrix * tranMatrix * scaleMatrix);
+		} else if(id>2){
+			return (rotMatrix * tranMatrix * translationMatrix * rotationMatrix * scaleMatrix);
 		}
 		return (rotationMatrix * translationMatrix * scaleMatrix);
 	}

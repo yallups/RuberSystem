@@ -51,7 +51,7 @@ float loadTriModel(char * fileName, int nVertices, glm::vec4 vertex[], glm::vec4
             point[i] = glm::vec3(coord[i][X], coord[i][Y], coord[i][Z]); 
             vertex[vertexCount] = glm::vec4(point[i].x, point[i].y, point[i].z, 1.0f);
             if (maxAxes[X] < abs(coord[i][X])) maxAxes[X] = abs(coord[i][X]);
-            if (maxAxes[Y] < abs(coord[i][Y])) maxAxes[X] = abs(coord[i][Y]);
+            if (maxAxes[Y] < abs(coord[i][Y])) maxAxes[Y] = abs(coord[i][Y]);
             if (maxAxes[Z] < abs(coord[i][X])) maxAxes[Z] = abs(coord[i][Z]);
             vertexCount++;  }
           // compute for counter-clockwise vertex winding
