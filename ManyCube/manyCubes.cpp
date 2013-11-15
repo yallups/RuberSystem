@@ -40,7 +40,14 @@ Mike Barnes
 # include "../includes465/include465.h"
 # define __INCLUDES465__   
 
+# ifndef __Shape3D__
 # include "Shape3D.hpp"
+# endif
+
+# ifndef __Missile__
+# include "Missile.hpp"
+# endif
+
 
 // Shapes
 const int nShapes = 8;
@@ -309,9 +316,11 @@ void display(void) {
 			modelMatrix = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat()); 
 		} else if (i == 6) {
 			modelMatrix = shape[i]->getModelMatrix(shape[1]->getTranslationMat(), shape[1]->getRotationMat()); 
-		} else {
+		} else if (i == 7) {
 			modelMatrix = shape[i]->getModelMatrix(shape[4]->getTranslationMat(), shape[4]->getRotationMat()); 
+			modelMatrix = shape[2]->getRotationMat() * shape[2]->getTranslationMat() * modelMatrix;
 		}
+
 		glBindVertexArray( vao[i] );
 		viewProjectionMatrix = projectionMatrix * viewMatrix; 
 		glEnableVertexAttribArray( vPosition[i]);

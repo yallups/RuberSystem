@@ -9,6 +9,11 @@ Mike Barnes
 # include "../includes465/include465.h"
 # define __INCLUDES465__
 # endif
+# ifndef __Missile__
+# include "Missile.hpp"
+# endif
+# define __Shape3D__
+
 
 class Shape3D {
 
@@ -93,18 +98,18 @@ public:
 				break;
 			case 6:
 				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle site Unum
-				translationMatrix = glm::translate(glm::mat4(), glm::vec3(20, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
+				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 10, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.2f); //Rotate around Duo
+				radians = glm::radians(0.0f); //Rotate around Duo
 				orbital = true;
 				missiles = 5;
 				break;
 			case 7: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle site Secundus
-				translationMatrix = glm::translate(glm::mat4(), glm::vec3(20, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
+				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 10, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.2f); //No Rotation
+				radians = glm::radians(0.0f); //No Rotation
 				orbital = true;
 				missiles = 5;
 				break;
@@ -120,10 +125,8 @@ public:
    glm::mat4 getModelMatrix(glm::mat4 tranMatrix, glm::mat4 rotMatrix) {
     if (orbital) // orbital rotation
 	{
-		if (id == 7) {
-			return (translationMatrix * rotationMatrix * rotMatrix * tranMatrix * scaleMatrix);
-		} else if(id>2){
-			return (rotMatrix * tranMatrix * translationMatrix * rotationMatrix * scaleMatrix);
+		if(id>2){
+			return (rotMatrix * tranMatrix * rotationMatrix * translationMatrix * scaleMatrix);
 		}
 		return (rotationMatrix * translationMatrix * scaleMatrix);
 	}
@@ -189,15 +192,15 @@ public:
   }
   Shape3D fireMissile(glm::vec3 direction) {
 	  if(missiles) {
-
+		   
 		  //Make new shape that looks like a missle
-		  Missile missile = new Missile(direction, getModelMatrix());
+		  //Missile missile = new Missile(direction, getModelMatrix());
 
 		  // set it in motion with an constant translation in its positivve direction
 
 		  missiles--;
 		  //return the instance
-		  return missile;
+		  //return missile;
 	  }
   }
   };  
