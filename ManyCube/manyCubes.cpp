@@ -56,9 +56,10 @@ Shape3D * shape[nShapes];
 char * modelFile[] = {"sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "ship03_color.tri", "cube2.tri", "cube2.tri"};// "ruber.tri", "unum.tri", "duo.tri", "moon.tri", "moon.tri"
 const GLuint nVerticesSphere = 4900 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesWarbird = 980 * 3;
-const GLuint nVerticesMissleSite = 12 * 3; // missle sites
+const GLuint nVerticesMissileSite = 12 * 3; // missile sites
 
-char viewCase = 'n';
+char viewCase = 'f';
+char warpCase = 'u';
 
 char * rocketModel = "rocket.tri";  // name of Rocket model file
 const GLuint nVerticesRocket = 144 * 3;  // 3 vertices per line (surface) of model file  
@@ -101,10 +102,10 @@ glm::vec4 vertexWarbird[nVerticesWarbird];
 glm::vec3 normalWarbird[nVerticesWarbird];
 glm::vec4 diffuseColorMaterialWarbird[nVerticesWarbird];
 
-// vectors for "MissleSites"
-glm::vec4 vertexMissleSite[nVerticesMissleSite];
-glm::vec3 normalMissleSite[nVerticesMissleSite];
-glm::vec4 diffuseColorMaterialMissleSite[nVerticesMissleSite];
+// vectors for "MissileSites"
+glm::vec4 vertexMissileSite[nVerticesMissileSite];
+glm::vec3 normalMissileSite[nVerticesMissileSite];
+glm::vec4 diffuseColorMaterialMissileSite[nVerticesMissileSite];
 
 // rotation variables
 glm::mat4 identity(1.0f); 
@@ -192,7 +193,7 @@ void init (void) {
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
 		} else if (i > 5) {
-			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissleSite, vertexMissleSite, diffuseColorMaterialMissleSite, normalMissleSite);
+			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissileSite, vertexMissileSite, diffuseColorMaterialMissileSite, normalMissileSite);
 			boundingRadius[i] = 30.0f;
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
@@ -208,10 +209,10 @@ void init (void) {
 
 			glGenBuffers( 1, &(buffer[i]) );
 			glBindBuffer( GL_ARRAY_BUFFER, buffer[i] );
-			glBufferData( GL_ARRAY_BUFFER, sizeof(vertexMissleSite) + sizeof(diffuseColorMaterialMissleSite) + sizeof(normalMissleSite), NULL, GL_STATIC_DRAW );
-			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(vertexMissleSite), vertexMissleSite );
-			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissleSite), sizeof(diffuseColorMaterialMissleSite), diffuseColorMaterialMissleSite );
-			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissleSite) + sizeof(diffuseColorMaterialMissleSite), sizeof(normalMissleSite), normalMissleSite );
+			glBufferData( GL_ARRAY_BUFFER, sizeof(vertexMissileSite) + sizeof(diffuseColorMaterialMissileSite) + sizeof(normalMissileSite), NULL, GL_STATIC_DRAW );
+			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(vertexMissileSite), vertexMissileSite );
+			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissileSite), sizeof(diffuseColorMaterialMissileSite), diffuseColorMaterialMissileSite );
+			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissileSite) + sizeof(diffuseColorMaterialMissileSite), sizeof(normalMissileSite), normalMissileSite );
 
 
 			// set up vertex arrays (after shaders are loaded)
@@ -221,11 +222,11 @@ void init (void) {
 
 			vColor[i] = glGetAttribLocation( shaderProgram, "vColor" );
 			glEnableVertexAttribArray( vColor[i] );
-			glVertexAttribPointer( vColor[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissleSite)) );
+			glVertexAttribPointer( vColor[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissileSite)) );
 
 			vNormal[i] = glGetAttribLocation( shaderProgram, "vNormal" );
 			glEnableVertexAttribArray( vNormal[i]);
-			glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissleSite) + sizeof(diffuseColorMaterialMissleSite)) );
+			glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissileSite) + sizeof(diffuseColorMaterialMissileSite)) );
 
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
@@ -234,7 +235,7 @@ void init (void) {
 	}
 
 	// initially use a front view
-	eye = glm::vec3(0.0f, 0.0f, 2000.0f);   // eye is 1000 "out of screen" from origin
+	eye = glm::vec3(0.0f, 0.0f, 4000.0f);   // eye is 4000 "out of screen" from origin
 	at  = glm::vec3(0.0f, 0.0f,    0.0f);   // looking at origin
 	up  = glm::vec3(0.0f, 1.0f,    0.0f);   // camera'a up vector
 	viewMatrix = glm::lookAt(eye, at, up);
@@ -285,23 +286,40 @@ void updateView() {
 	atPosition = warbird * atPosition;
 
 	switch(viewCase) {
+	case 'f' :
+		eye = glm::vec3(0.0f, 0.0f, 4000.0f);   // eye is 4000 "out of screen" from origin
+		at  = glm::vec3(0.0f, 0.0f,    0.0f);   // looking at origin
+		up  = glm::vec3(0.0f, 1.0f,    0.0f);   // camera'a up vector
+		viewMatrix = glm::lookAt(eye, at, up);
+		strcpy(viewStr, " Front View"); 
+		break;
+	case 't' :  // top view
+		eye = glm::vec3(0.0f, 2000.0f,  0.0f);   // eye is 4000 up from origin
+		at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
+		up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
+		viewMatrix = glm::lookAt(eye, at, up);
+		strcpy(viewStr, " Top View"); 
+		break;
+	case 'b' :  // warbird view
+		eye = glm::vec3(eyePosition[3].x, eyePosition[3].y, eyePosition[3].z);   // eye is 3000 up from origin
+		at  = glm::vec3(atPosition[3].x, atPosition[3].y, atPosition[3].z);   // looking at origin  
+		up  = glm::vec3(warbird[1].x, warbird[1].y, warbird[1].z);   // camera's up is looking towards -Z vector
+		viewMatrix = glm::lookAt(eye, at, up); 
+		strcpy(viewStr, " Warbird View"); 
+		break;
 	case 'u' :// unum view
 		eye = glm::vec3(unum[3].x,  200.0f, unum[3].z);   // eye is 3000 up from origin
 		at  = glm::vec3(unum[3].x,   0.0f,  unum[3].z);   // looking at origin  
 		up  = glm::vec3(0.0f,        0.0f,      -1.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up); 
+		strcpy(viewStr, " Unum View"); 
 		break;
 	case 'd' : // duo view
 		eye = glm::vec3(duo[3].x,  300.0f, duo[3].z);   // eye is 3000 up from origin
 		at  = glm::vec3(duo[3].x,    0.0f, duo[3].z);   // looking at origin  
 		up  = glm::vec3(0.0f,        0.0f,    -1.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up);
-		break;
-	case 'w' :  // warbird view
-		eye = glm::vec3(eyePosition[3].x, eyePosition[3].y, eyePosition[3].z);   // eye is 3000 up from origin
-		at  = glm::vec3(atPosition[3].x, atPosition[3].y, atPosition[3].z);   // looking at origin  
-		up  = glm::vec3(warbird[1].x, warbird[1].y, warbird[1].z);   // camera's up is looking towards -Z vector
-		viewMatrix = glm::lookAt(eye, at, up); 
+		strcpy(viewStr, " Duo View"); 
 		break;
 	}
 }
@@ -309,8 +327,7 @@ void updateView() {
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// update model matrix, set MVP, draw
-	if(viewCase != 'n')
-		updateView();
+	updateView();
 	for(int i = 0; i < nShapes; i++) { 
 		if (i < 6) {
 			modelMatrix = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat()); 
@@ -333,7 +350,7 @@ void display(void) {
 		else if(i==5)
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesWarbird);
 		else if(i > 5)
-			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissleSite);
+			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissileSite);
 	}
 	glutSwapBuffers();
 	frameCount++;
@@ -410,7 +427,7 @@ void process_SHIFT_ALT_CTRL(int key, int x, int y)
 	glm::mat4 warbirdrot = shape[5]->getRotationMat();
 	warbird = warbirdrot*warbird;
 
-	printf("%d, %d, process_SHIFT_ALT_CTRL\n", mod, key);
+	//printf("%d, %d, process_SHIFT_ALT_CTRL\n", mod, key);
 
 	switch(key) {
 	case GLUT_KEY_UP :
@@ -456,7 +473,7 @@ void keyboard (unsigned char key, int x, int y) {
 	glm::mat4 warbirdrot = shape[5]->getRotationMat();
 	warbird = warbirdrot*warbird;
 
-	printf("%d, %d, keyboard\n", mod, key);
+	//printf("%d, %d, keyboard\n", mod, key);
 
 	switch(key) {
 	case '8' :
@@ -501,45 +518,35 @@ void keyboard (unsigned char key, int x, int y) {
 	case 033 : case 'q' :  case 'Q' : 
 		exit(EXIT_SUCCESS); 
 		break;
-	case 'f' : case 'F' :  // front view
-		viewCase = 'n';
-		eye = glm::vec3(0.0f, 0.0f, 4000.0f);   // eye is 4000 "out of screen" from origin
-		at  = glm::vec3(0.0f, 0.0f,    0.0f);   // looking at origin
-		up  = glm::vec3(0.0f, 1.0f,    0.0f);   // camera'a up vector
-		viewMatrix = glm::lookAt(eye, at, up);
-		strcpy(viewStr, " front view"); 
+	case 'v' : case 'V' :
+		switch(viewCase) {
+		case 'f' : viewCase = 't'; break;
+		case 't' : viewCase = 'b'; break;
+		case 'b' : viewCase = 'f'; break;
+		default : viewCase = 'f'; break;
+		}
 		break;
-	case 't' : case 'T' :  // top view
-		viewCase = 'n';
-		eye = glm::vec3(0.0f, 2000.0f,  0.0f);   // eye is 4000 up from origin
-		at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
-		up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
-		viewMatrix = glm::lookAt(eye, at, up);
-		strcpy(viewStr, " top view"); 
+	case 'p' : case 'P' :
+		switch(viewCase) {
+		case 'u' : viewCase = 'd'; break;
+		case 'd' : viewCase = 'u'; break;
+		default : viewCase = 'u'; break;
+		}
 		break;
-	case 'u' : case 'U' :  // unum view
-		viewCase = 'u';
-		eye = glm::vec3(unum[3].x,  200.0f, unum[3].z);   // eye is 3000 up from origin
-		at  = glm::vec3(unum[3].x,   0.0f,  unum[3].z);   // looking at origin  
-		up  = glm::vec3(0.0f,        0.0f,      -1.0f);   // camera's up is looking towards -Z vector
-		viewMatrix = glm::lookAt(eye, at, up); 
-		strcpy(viewStr, " unum view"); 
+	case 'w' : case 'W' :
+		switch(warpCase) {
+		case 'u' : warpCase = 'd'; shape[5]->warpToPlanet(shape[1]->getTranslationMat(), shape[1]->getRotationMat());
+			break;
+		case 'd' : warpCase = 'u'; shape[5]->warpToPlanet(shape[2]->getTranslationMat(), shape[2]->getRotationMat());
+			break;
+		default : warpCase = 'u'; break;
+		}
 		break;
-	case 'd' : case 'D' :  // duo view
-		viewCase = 'd';
-		eye = glm::vec3(duo[3].x,  200.0f, duo[3].z);   // eye is 3000 up from origin
-		at  = glm::vec3(duo[3].x,    0.0f, duo[3].z);   // looking at origin  
-		up  = glm::vec3(0.0f,        0.0f,    -1.0f);   // camera's up is looking towards -Z vector
-		viewMatrix = glm::lookAt(eye, at, up);
-		strcpy(viewStr, " duo view"); 
+	case 'f' : case 'F' : //Fire missile
 		break;
-	case 'w' : case 'W' :  // warbird view
-		viewCase = 'w';
-		eye = glm::vec3(warbird[3].x, warbird[3].y+50.0f, warbird[3].z-100.0f);   // eye is 3000 up from origin
-		at  = glm::vec3(warbird[3].x, warbird[3].y+0.0f,         warbird[3].z);   // looking at origin  
-		up  = glm::vec3(0.0f,  1.0f,    0.0f);   // camera's up is looking towards -Z vector
-		viewMatrix = glm::lookAt(eye, at, up); 
-		strcpy(viewStr, " warbird view"); 
+	case 't' : case 'T' : //Change Time Quantum
+		break;
+	case 'g' : case 'G' : //Toggle Gravity
 		break;
 	}
 	updateTitle();
@@ -551,7 +558,7 @@ int main(int argc, char* argv[]) {
 	glutInitWindowSize(800, 600);
 	glutInitContextVersion(3, 3);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
-	glutCreateWindow("465 Ruber Solar System {f, t, u, d, w} : front view");
+	glutCreateWindow("465 Ruber Solar System {v, p, w, f, t} : Front View");
 	// initialize and verify glew
 	glewExperimental = GL_TRUE;  // needed my home system 
 	GLenum err = glewInit();  

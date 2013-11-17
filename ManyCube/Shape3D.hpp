@@ -57,35 +57,35 @@ public:
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.2f);
+				radians = glm::radians(0.002f);
 				orbital = false;
 				break;
 			case 1: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make Unum
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(400, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.4f); //Rotate around Ruber
+				radians = glm::radians(0.004f); //Rotate around Ruber
 				orbital = true;
 				break;
 			case 2: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(40, 40, 40));  // make Duo
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(-700, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.2f); //Rotate around Ruber
+				radians = glm::radians(0.002f); //Rotate around Ruber
 				orbital = true;
 				break;
 			case 3: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(10, 10, 10));  // make Primus
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(-50, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.2f); //Rotate around Duo
+				radians = glm::radians(0.002f); //Rotate around Duo
 				orbital = true;
 				break;
 			case 4: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(15, 15, 15));  // make Secundus
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(100, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.4f); //Rotate around Duo
+				radians = glm::radians(0.004f); //Rotate around Duo
 				orbital = true;
 				break;
 			case 5: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(5, 5, 5));  // make Warbird
@@ -97,7 +97,7 @@ public:
 				missiles = 10;
 				break;
 			case 6:
-				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle site Unum
+				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missile site Unum
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 10, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
@@ -105,7 +105,7 @@ public:
 				orbital = true;
 				missiles = 5;
 				break;
-			case 7: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle site Secundus
+			case 7: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missile site Secundus
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 10, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
@@ -190,10 +190,15 @@ public:
 	  glm::vec3 direction = glm::vec3(0, 10*(rotationMatrix2[2].y), 0);
 	  translationMatrix = glm::translate(translationMatrix, glm::vec3(0,direction.y,0));
   }
+  void warpToPlanet(glm::mat4 tranMatrix, glm::mat4 rotMatrix) {
+	  glm::mat4 translation = glm::translate(glm::mat4(), glm::vec3(0,200.0f, 0));
+	  translationMatrix = rotMatrix * tranMatrix * translation;
+	  rotationMatrix = glm::rotate(glm::mat4(), PI/2, glm::vec3(1.0f,0.0f,0.0f));
+  }
   Shape3D fireMissile(glm::vec3 direction) {
 	  if(missiles) {
 		   
-		  //Make new shape that looks like a missle
+		  //Make new shape that looks like a missile
 		  //Missile missile = new Missile(direction, getModelMatrix());
 
 		  // set it in motion with an constant translation in its positivve direction
