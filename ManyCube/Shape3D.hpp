@@ -30,6 +30,7 @@ private :
   glm::vec3 translation; 
   float radians; 
   bool orbital;
+  bool inFlight;
 
 public:
 
@@ -116,21 +117,16 @@ public:
 				orbital = true;
 				missiles = 5;
 				break;
-			case 8: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle1
+			case 8: case 9: 
+				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
 				radians = glm::radians(0.0f); //No Rotation
 				orbital = false;
+				inFlight = false;
 				break;
-			case 9: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle2
-				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
-				//set cube's  rotation axis and rotation radians
-				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.0f); //No Rotation
-				orbital = false;
-				break;
-
+			
 		}
 		rotationMatrix = glm::mat4();  // no initial orientation
 	}
@@ -167,8 +163,28 @@ public:
 		case 8: rollRight(); break;
 		default: break;
 		}
+	} else if (id > 7) {
+		if (inFlight) {
+			//moveForward();
+			glm::vec3 pos = getposition();
+
+			//printf("pos: %f,%f,%f\n", pos.x,pos.y,pos.z);
+		}
 	}
   }  
+
+  glm::vec3 getDirection() {
+	  return glm::vec3(10*rotationMatrix[2].x,10*rotationMatrix[2].y,10*rotationMatrix[2].z);
+  }
+  glm::vec3 getposition() {
+	  return glm::vec3(translationMatrix[3].x,translationMatrix[3].y,translationMatrix[3].z);
+  }
+  void printPos() {
+	  glm::vec3 pos = getposition();
+	  printf("Shape %d: x=%d, y=%d, z=%d\n",id,pos.x,pos.y,pos.z);
+  }
+
+
   void moveForward() {
 	  glm::vec3 direction = glm::vec3(10*rotationMatrix[2].x,10*rotationMatrix[2].y,10*rotationMatrix[2].z);
 	  translationMatrix = glm::translate(translationMatrix, glm::vec3(direction.x,direction.y,direction.z));
@@ -236,17 +252,8 @@ public:
 		  //printf("%f\n", gravityVector);
 	  }
   }
-  Shape3D fireMissile(glm::vec3 direction) {
-	  if(missiles) {
-		   
-		  //Make new shape that looks like a missile
-		  //Missile missile = new Missile(direction, getModelMatrix());
-
-		  // set it in motion with an constant translation in its positivve direction
-
-		  missiles--;
-		  //return the instance
-		  //return missile;
-	  }
+  void fire(glm::mat4 rot, glm::mat4 trns) {
+	  translationMatrix = rot * trns;
+	  inFlight = true;
   }
   };  

@@ -20,10 +20,10 @@
     <None Include="simpleVertex.glsl" />
     <None Include="duo.tri" />
     <None Include="moon.tri" />
-    <None Include="rocket.tri" />
     <None Include="ruber.tri" />
     <None Include="unum.tri" />
     <None Include="warbird.tri" />
+    <None Include="missle.tri" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shape3D.hpp">

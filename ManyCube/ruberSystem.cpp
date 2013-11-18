@@ -57,7 +57,7 @@ char * modelFile[] = {
 const GLuint nVerticesSphere = 4900 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesWarbird = 980 * 3;
 const GLuint nVerticesMissileSite = 12 * 3; // missle sites aka cubes
-const GLuint nVerticesMissle = 12 * 3; // missle
+const GLuint nVerticesMissle = 144 * 3; // missle
 
 
 char * rocketModel = "rocket.tri";  // name of Rocket model file
@@ -438,7 +438,7 @@ void animate(void){
 				float d = sqrtf(pow((pos1.x - pos2.x),2) + pow((pos1.z - pos2.z),2) + pow((pos1.z - pos2.z),2));
 
 				if (d - (boundingRadius[i] + boundingRadius[y]) <= 0) {
-				//	printf("BOOOOM! %d <--> %d\n", i, y);
+					printf("BOOOOM! %d <--> %d\n", i, y);
 
 				}
 			}
@@ -552,10 +552,9 @@ void keyboard (unsigned char key, int x, int y) {
 		shape[5]->turnRight();
 		break;*/
 	case '1':
-		printf("shape1: %s", shape[1]->getTranslationMat());
-		printf("shape6: %s", shape[6]->getTranslationMat());
-		printf("shape4: %s", shape[4]->getTranslationMat());
-		printf("shape7: %s", shape[7]->getTranslationMat());
+		shape[5]->printPos();
+		shape[8]->printPos();
+		shape[9]->printPos();
 		break;
 	/*case '3':
 		shape[5]->rollRight();
@@ -612,7 +611,13 @@ void keyboard (unsigned char key, int x, int y) {
 	case 'g' : case 'G' : //Toggle Gravity
 		gravity = !gravity;
 		break;
+	case 32 :
+		printf("FIRE!!!");
+		shape[8]->fire(shape[5]->getRotationMat(), shape[5]->getTranslationMat());
+
+
 	}
+
 	updateTitle();
 }
 
