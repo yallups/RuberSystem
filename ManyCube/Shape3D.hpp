@@ -113,6 +113,20 @@ public:
 				orbital = true;
 				missiles = 5;
 				break;
+			case 8: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle1
+				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
+				//set cube's  rotation axis and rotation radians
+				rotationAxis = glm::vec3(0,  1, 0);
+				radians = glm::radians(0.0f); //No Rotation
+				orbital = false;
+				break;
+			case 9: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle2
+				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
+				//set cube's  rotation axis and rotation radians
+				rotationAxis = glm::vec3(0,  1, 0);
+				radians = glm::radians(0.0f); //No Rotation
+				orbital = false;
+				break;
 
 		}
 		rotationMatrix = glm::mat4();  // no initial orientation
@@ -135,7 +149,12 @@ public:
     }
 
   void update() {
-	rotationMatrix = glm::rotate(rotationMatrix, radians, rotationAxis);
+	  if (id > 7 ) {
+		  // make adjustments to orient in the corrct direction.
+		  moveForward();
+	  } else {
+		rotationMatrix = glm::rotate(rotationMatrix, radians, rotationAxis);
+	  }
 	//translationMatrix = glm::translate(translationMatrix, translation);
     }  
   void moveForward() {
