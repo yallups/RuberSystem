@@ -30,7 +30,7 @@ private :
   glm::vec3 translation; 
   float radians; 
   bool orbital;
-  bool inFlight;
+  bool inFlight;// bool for if a missle is in flight we can tell it to keep moving other wise leave it alone.
 
 public:
 
@@ -163,16 +163,16 @@ public:
 		case 8: rollRight(); break;
 		default: break;
 		}
-	} else if (id > 7) {
-		if (inFlight) {
-			//moveForward();
-			glm::vec3 pos = getposition();
-
-			//printf("pos: %f,%f,%f\n", pos.x,pos.y,pos.z);
+	} else if (id > 7) { // these are missile
+		if (inFlight) { // if the missile is in flight... 
+			moveForward(); // we will need to do more than move forward. but this is a place to start
+			
+			printPos(); // if you want a constant update on the position of the missile
 		}
 	}
   }  
 
+  // some helper functions
   glm::vec3 getDirection() {
 	  return glm::vec3(10*rotationMatrix[2].x,10*rotationMatrix[2].y,10*rotationMatrix[2].z);
   }
@@ -252,6 +252,9 @@ public:
 		  //printf("%f\n", gravityVector);
 	  }
   }
+
+  // hopefully takes in the warbirds position and sets it the this position.
+  // however I dont think I am doing the right
   void fire(glm::mat4 rot, glm::mat4 trns) {
 	  translationMatrix = rot * trns;
 	  inFlight = true;

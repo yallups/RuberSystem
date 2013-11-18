@@ -57,6 +57,7 @@ char * modelFile[] = {
 const GLuint nVerticesSphere = 4900 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesWarbird = 980 * 3;
 const GLuint nVerticesMissileSite = 12 * 3; // missle sites aka cubes
+// temporarily I am using the ugly-ass rocket .tri as a missile until we get a reall one
 const GLuint nVerticesMissle = 144 * 3; // missle
 
 
@@ -552,6 +553,7 @@ void keyboard (unsigned char key, int x, int y) {
 		shape[5]->turnRight();
 		break;*/
 	case '1':
+		//case 1 prints out the position of each of the missiles and the warbird
 		shape[5]->printPos();
 		shape[8]->printPos();
 		shape[9]->printPos();
@@ -612,6 +614,7 @@ void keyboard (unsigned char key, int x, int y) {
 		gravity = !gravity;
 		break;
 	case 32 :
+		// pressing space bar should tell shape 8 aka missile 1 the go the where the warbird is and get set in motion.
 		printf("FIRE!!!");
 		shape[8]->fire(shape[5]->getRotationMat(), shape[5]->getTranslationMat());
 
