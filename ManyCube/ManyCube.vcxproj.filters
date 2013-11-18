@@ -26,16 +26,16 @@
     <None Include="warbird.tri" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="manyCubes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Shape3D.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Missile.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ruberSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

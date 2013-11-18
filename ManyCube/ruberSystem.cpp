@@ -1,35 +1,24 @@
 /*
-manyCubes.cpp
+ruberSystem.cpp
 includes Shape3D.cpp
 
-A modification of CubeTriModel.cpp that uses C and C++.
-This file (manyCube.cpp) is a C file -- it defines no classes
-but has 1000 instances of Shape3D.
+A modification of manyCubes.cpp that uses C and C++.
+This file (ruberSystem.cpp) is a C file -- it defines no classes
+but has the Ruber Solar System, a Warbird, and Missile Sites with missiles.
 
 File Shape3D defines a 3D shape that can translate and rotate.
-There is only 1 model created from the "Cube2.tri" file.
-
-However 1,000 Shapes3D are drawn as cubes.  
-Each has its own position and orientation.
-Each cube rotates either orbitally or about its center.
 
 465 utility include files:  shader465.h, triModel465.h  
 Shaders:  simpleVertex.glsl  amd simpleFragment.glsl
 
 User commands:
-'f' view from front (0, 0, 3) looking at origin
-'t' view from above (0, 3, 3) looking at origin
-'b' view from below (0, -3, 0) looking at origin
+'v' changes the camera to view from either the top, front or warbird.
+'p' changes the camera to view either planet Unum or planet Duo
+'w' warps the warbird to either planet Unum or planet Duo
+'t' changes the Time Quantum to either ACE, PILOT, TRAINEE, or DEBUG
+'f' fires a missile from the warbird
 
 Current state is displayed in the window title.
-
-The cube2.tri model uses 12 triangular surfaces to display 12 trianlge surfaces.  
-So, there are 36 (3 * 12) vertices.
-
-The triModel465.h utility creates colors, and normals for ever vertex.
-However the simple*.glsl shaders do not use the normal. 
-Since the same color is created for every vertex of every surface,
-the object is rendered with flat shading.
 
 Mike Barnes
 9/7/2013
@@ -56,10 +45,7 @@ Shape3D * shape[nShapes];
 char * modelFile[] = {"sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "sphere_mr.tri", "ship03_color.tri", "cube2.tri", "cube2.tri"};// "ruber.tri", "unum.tri", "duo.tri", "moon.tri", "moon.tri"
 const GLuint nVerticesSphere = 4900 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesWarbird = 980 * 3;
-const GLuint nVerticesMissileSite = 12 * 3; // missile sites
-
-char viewCase = 'f';
-char warpCase = 'u';
+const GLuint nVerticesMissileSite = 12 * 3; // missile sites aka cubes
 
 char * rocketModel = "rocket.tri";  // name of Rocket model file
 const GLuint nVerticesRocket = 144 * 3;  // 3 vertices per line (surface) of model file  
@@ -70,9 +56,12 @@ int Index =  0;  // global variable indexing into VBO arrays
 
 // display state and "state strings" for title display
 // window title strings
-char baseStr[50] =    "465 Ruber Solar System {f, t, u, d, w} :";
-char fpsStr[15], viewStr[15] =    " front view";
+char baseStr[60] = "465 Ruber Solar System {v, p, w, f, t} :";
+char fpsStr[15], viewStr[15] =    " Front View";
 char titleStr [100]; 
+
+char viewCase = 'f';
+char warpCase = 'u';
 
 GLuint vao[nShapes];  // VertexArrayObject
 GLuint buffer[nShapes]; // Create and initialize a buffer object
@@ -80,6 +69,7 @@ GLuint shaderProgram;
 char * vertexShaderFile = "simpleVertex.glsl";
 char * fragmentShaderFile = "simpleFragment.glsl";
 GLuint Model, ViewProj ;  // Mode, View*Projection handles
+
 glm::mat4 projectionMatrix;     // set in reshape()
 glm::mat4 modelMatrix;          // set in shape[i]-->updateDraw()
 glm::mat4 viewMatrix;           // set in keyboard()
@@ -92,17 +82,17 @@ GLuint vNormal[nShapes];
 // vectors and values for lookAt
 glm::vec3 eye, at, up;
 
-// vectors for "model"
+// vectors for "modelPlanets"
 glm::vec4 vertexSphere[nVerticesSphere];
 glm::vec3 normalSphere[nVerticesSphere];
 glm::vec4 diffuseColorMaterialSphere[nVerticesSphere];
 
-// vectors for "modelRocket"
+// vectors for "modelWarbird"
 glm::vec4 vertexWarbird[nVerticesWarbird];
 glm::vec3 normalWarbird[nVerticesWarbird];
 glm::vec4 diffuseColorMaterialWarbird[nVerticesWarbird];
 
-// vectors for "MissileSites"
+// vectors for "modelMissileSites"
 glm::vec4 vertexMissileSite[nVerticesMissileSite];
 glm::vec3 normalMissileSite[nVerticesMissileSite];
 glm::vec4 diffuseColorMaterialMissileSite[nVerticesMissileSite];
@@ -110,8 +100,11 @@ glm::vec4 diffuseColorMaterialMissileSite[nVerticesMissileSite];
 // rotation variables
 glm::mat4 identity(1.0f); 
 glm::mat4 rotation;
-int timerDelay = 1000, frameCount = 0;
+const int ACE = 40, PILOT = 100, TRAINEE = 250, DEBUG = 500;
+int timerDelay = ACE, frameCount = 0;
 
+int movementDirection = 0;
+boolean gravity = false;
 
 void init (void) {
 	for(int i = 0; i < nShapes; i++) {
@@ -154,13 +147,14 @@ void init (void) {
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
 		} else if(i == 5) {
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesWarbird, vertexWarbird, diffuseColorMaterialWarbird, normalWarbird);
-			boundingRadius[i] = 50.0f;
 
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
 				exit(1); }
 			else
 				printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
+			
+			boundingRadius[i] = boundingRadius[i] + 50.0f; //Warbird has larger radius
 
 			shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 			glUseProgram(shaderProgram);
@@ -194,12 +188,14 @@ void init (void) {
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
 		} else if (i > 5) {
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissileSite, vertexMissileSite, diffuseColorMaterialMissileSite, normalMissileSite);
-			boundingRadius[i] = 30.0f;
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
 				exit(1); }
 			else
 				printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
+
+			
+			boundingRadius[i] = boundingRadius[i] + 30.0f;
 
 			shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 			glUseProgram(shaderProgram);
@@ -308,7 +304,7 @@ void updateView() {
 		strcpy(viewStr, " Warbird View"); 
 		break;
 	case 'u' :// unum view
-		eye = glm::vec3(unum[3].x,  200.0f, unum[3].z);   // eye is 3000 up from origin
+		eye = glm::vec3(unum[3].x,  300.0f, unum[3].z);   // eye is 3000 up from origin
 		at  = glm::vec3(unum[3].x,   0.0f,  unum[3].z);   // looking at origin  
 		up  = glm::vec3(0.0f,        0.0f,      -1.0f);   // camera's up is looking towards -Z vector
 		viewMatrix = glm::lookAt(eye, at, up); 
@@ -349,21 +345,15 @@ void display(void) {
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesSphere);
 		else if(i==5)
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesWarbird);
-		else if(i > 5)
+		else if(i == 6 || i == 7)
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissileSite);
 	}
 	glutSwapBuffers();
-	frameCount++;
-
 }
 
 // for use with Idle and intervalTimer functions 
 // to set rotation
 void animate(void){
-	frameCount++;
-	for(int i = 0; i < nShapes; i++) {
-		shape[i] -> update();
-	}
 
 	glm::vec4 pos1;
 	glm::vec4 pos2;
@@ -389,14 +379,14 @@ void animate(void){
 				float d = sqrtf(pow((pos1.x - pos2.x),2) + pow((pos1.z - pos2.z),2) + pow((pos1.z - pos2.z),2));
 
 				if (d - (boundingRadius[i] + boundingRadius[y]) <= 0) {
-					printf("BOOOOM! %d <--> %d\n", i, y);
+				//	printf("BOOOOM! %d <--> %d\n", i, y);
 
 				}
 			}
 		}
 	}
 	
-	glutPostRedisplay();
+	
 }
 
 
@@ -405,10 +395,18 @@ void animate(void){
 void intervalTimer (int i) { 
 	glutTimerFunc(timerDelay, intervalTimer, 1);
 	// display frames / second
-	sprintf(fpsStr, " fps %4d", frameCount );
-	frameCount = 0;
+	sprintf(fpsStr, " FPS %4d", frameCount );
+	frameCount = 1000/timerDelay;
 	updateTitle();
-	animate();
+	for(int i = 0; i < nShapes; i++) {
+		shape[i] -> update(movementDirection);
+		if(gravity && (i == 5 )) {
+			shape[i]->gravity(); 
+		}
+	}
+	movementDirection = 0;
+	
+	glutPostRedisplay();
 }
 
 void process_SHIFT_ALT_CTRL(int key, int x, int y) 
@@ -432,27 +430,27 @@ void process_SHIFT_ALT_CTRL(int key, int x, int y)
 	switch(key) {
 	case GLUT_KEY_UP :
 		if(mod != 0)
-			shape[5]->turnUp();
+			movementDirection = 2;//shape[5]->turnUp();
 		else
-			shape[5]->moveForward();
+			movementDirection = 1;//shape[5]->moveForward();
 		break;
 	case GLUT_KEY_LEFT :
 		if(mod == 0)
-			shape[5]->turnLeft();
+			movementDirection = 5;//shape[5]->turnLeft();
 		else
-			shape[5]->rollLeft();
+			movementDirection = 6;//shape[5]->rollLeft();
 		break;
 	case GLUT_KEY_RIGHT :
 		if(mod == 0)
-			shape[5]->turnRight();
+			movementDirection = 7;//shape[5]->turnRight();
 		else
-			shape[5]->rollRight();
+			movementDirection = 8;//shape[5]->rollRight();
 		break;
 	case GLUT_KEY_DOWN:
 		if(mod != 0)
-			shape[5]->turnDown();
+			movementDirection = 4;//shape[5]->turnDown();
 		else
-			shape[5]->moveBackward();
+			movementDirection = 3;//shape[5]->moveBackward();
 		break;
 	}
 }
@@ -476,7 +474,7 @@ void keyboard (unsigned char key, int x, int y) {
 	//printf("%d, %d, keyboard\n", mod, key);
 
 	switch(key) {
-	case '8' :
+	/*case '8' :
 		if(mod != 0)
 			shape[5]->turnUp();
 		else
@@ -493,14 +491,14 @@ void keyboard (unsigned char key, int x, int y) {
 		break;
 	case '6' :
 		shape[5]->turnRight();
-		break;
+		break;*/
 	case '1':
 		printf("shape1: %s", shape[1]->getTranslationMat());
 		printf("shape6: %s", shape[6]->getTranslationMat());
 		printf("shape4: %s", shape[4]->getTranslationMat());
 		printf("shape7: %s", shape[7]->getTranslationMat());
 		break;
-	case '3':
+	/*case '3':
 		shape[5]->rollRight();
 		break;
 	case '2':
@@ -514,7 +512,7 @@ void keyboard (unsigned char key, int x, int y) {
 		break;
 	case '0' :
 		shape[5]->moveDown();
-		break;
+		break;*/
 	case 033 : case 'q' :  case 'Q' : 
 		exit(EXIT_SUCCESS); 
 		break;
@@ -545,8 +543,15 @@ void keyboard (unsigned char key, int x, int y) {
 	case 'f' : case 'F' : //Fire missile
 		break;
 	case 't' : case 'T' : //Change Time Quantum
+		switch(timerDelay) {
+		case ACE: timerDelay = PILOT; break;
+		case PILOT: timerDelay = TRAINEE; break;
+		case TRAINEE: timerDelay = DEBUG; break;
+		case DEBUG: timerDelay = ACE; break;
+		}
 		break;
 	case 'g' : case 'G' : //Toggle Gravity
+		gravity = !gravity;
 		break;
 	}
 	updateTitle();
