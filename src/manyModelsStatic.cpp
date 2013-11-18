@@ -56,6 +56,7 @@ glm::vec3 eye, at, up;
 
 // Missile firing status.
 boolean missileFired = false;
+GLfloat missilePosition = 0.0;
 
 void reshape(int width, int height) {
   float aspectRatio = (float) width / (float) height;
@@ -68,30 +69,37 @@ void reshape(int width, int height) {
 
 // Fire a missile.
 void fireMissile() {
-	int zPosition = 500; // Set the missile at the launcher's position.
-
-	if (missileFired) {
-		for (int i = 0; i < 100; i++) {
-			translate[3] = glm::vec3(50, 0, 500 - (i * 10)); // Update the missile's position.
-			printf("[position] %d \n", i);
-		}
-	}
 
 	missileFired = true;
 }
 
 void animate() {
 
-	for (int i = 0; i < nModels; i++) {
-		modelMatrix = glm::translate(glm::mat4(), translate[i]);
+	// TODO Need to get current position then adjust by missilePosition.
+	// Stop the missile.
+	if (missilePosition > 100) {
+		missileFired = false;
 	}
+
+	// Update the missile's position.
+	if (missileFired) {
+		missilePosition -= 10.0;
+
+		translate[3] = glm::vec3(50, 0, missilePosition);  // Index 3 corresponds to the missile.
+		printf("\n[Missile position] %f", missilePosition);
+	}
+
+
+}
+
+void intervalTimer (int i) {
+	glutTimerFunc(1000/60, intervalTimer, 1);
+
+	animate();
 
 	glutPostRedisplay();
 }
 
-void intervalTime (int i) {
-
-}
 
 void display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -107,10 +115,11 @@ void display() {
       glEnableVertexAttribArray( vPosition[m] );
       glEnableVertexAttribArray( vColor[m] );
       glEnableVertexAttribArray( vNormal[m] );
-      glDrawArrays(GL_TRIANGLES, 0, nVertices[m] ); 
-      }
+      glDrawArrays(GL_TRIANGLES, 0, nVertices[m] );
+  }
 
   glutSwapBuffers();
+
   }
 
 // update and display animation state in window title
@@ -149,12 +158,13 @@ void keyboard (unsigned char key, int x, int y) {
 		break;
 	case 'm' : case 'M' : // Fire missile
 		fireMissile(); // Update the missile's position.
-		printf("Missile fired.\n");
+		printf("\nMissile fired.");
 		break;
 	case 'p' : case 'P' : // Reset the missile's starting position.
 		missileFired = false;
 		translate[3] = glm::vec3(50, 0, 500);
-		printf("Missile reset.\n");
+		missilePosition = 0.0;
+		printf("\nMissile reset.");
 		break;
     }
 
@@ -223,7 +233,8 @@ int main(int argc, char* argv[]) {
   glutDisplayFunc(display);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboard);
-  glutIdleFunc(animate);
+  //glutIdleFunc(animate);
+  glutTimerFunc(100, intervalTimer, 0);
   glutMainLoop();
   printf("done\n");
   return 0;
