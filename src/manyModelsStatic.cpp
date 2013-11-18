@@ -23,11 +23,11 @@ Mike Barnes
 
 const int X = 0, Y = 1, Z = 2, START = 0, STOP = 1;
 // constants for models:  file names, vertex count, model display size
-const int nModels = 3;  // number of models in this scene
-char * modelFile [nModels] = {"..//models/sphere.tri", "..//models/sphere.tri", "..//models/sphere.tri"};
+const int nModels = 4;  // number of models in this scene
+char * modelFile [nModels] = {"..//models/sphere.tri", "..//models/sphere.tri", "..//models/sphere.tri", "..//models/cube2.tri"};
 float modelBR[nModels];       // model's bounding radius
 float scaleValue[nModels];    // model's scaling "size" value
-const int nVertices[nModels] = { 264 * 3, 264 * 3, 264 * 3 };
+const int nVertices[nModels] = { 264 * 3, 264 * 3, 264 * 3, 12 * 3 };
 char * vertexShaderFile   = "../shaders/viewVertex.glsl";      // "simpleVertex.glsl";  // "viewVertex.glsl";
 char * fragmentShaderFile = "../shaders/viewFragment.glsl";  // "simpleFragment.glsl";  //"viewFragment.glsl";    
 GLuint shaderProgram; 
@@ -38,21 +38,24 @@ GLuint buffer[nModels];   // Vertex Buffer Objects
 GLuint model, view, project;                  // Model, View, Project GLSL uniform handles
 GLuint vPosition[nModels], vColor[nModels], vNormal[nModels];   // vPosition, vColor, vNormal handles for models
 // model, view, projection matrices and values to create modelMatrix.
-float modelSize[nModels] = { 25.0f, 25.0f, 25.0f };   // size of model
+float modelSize[nModels] = { 25.0f, 25.0f, 25.0f, 10.0f };   // size of model
 glm::vec3 scale[nModels];       // set in init()
-glm::vec3 translate[nModels] = {glm::vec3(0,0,500), glm::vec3(300, 0, -500), glm::vec3(-300, 0, -500)};
+glm::vec3 translate[nModels] = {glm::vec3(0,0,500), glm::vec3(300, 0, -500), glm::vec3(-300, 0, -500), glm::vec3(50, 0, 500)};
 glm::mat4 modelMatrix;          // set in display()
 glm::mat4 viewMatrix;           // set in init()
 glm::mat4 projectionMatrix;     // set in reshape()
 
 // display state and "state strings" for title display
 // window title strings
-char baseStr[50] =    "465 manyCubes Example {f, t, r} : ";
-char fpsStr[15], viewStr[15] =    " front view";
+char baseStr[50] = "465 manyCubes Example {f, t, r} : ";
+char fpsStr[15], viewStr[15] = "";
 char titleStr [100];
 
 // vectors and values for lookAt
 glm::vec3 eye, at, up;
+
+// Missile firing status.
+boolean missileFired = false;
 
 void reshape(int width, int height) {
   float aspectRatio = (float) width / (float) height;
@@ -62,6 +65,33 @@ void reshape(int width, int height) {
     FOVY, width, height, aspectRatio);
   projectionMatrix = glm::perspective(FOVY, aspectRatio, 1.0f, 100000.0f); 
   }
+
+// Fire a missile.
+void fireMissile() {
+	int zPosition = 500; // Set the missile at the launcher's position.
+
+	if (missileFired) {
+		for (int i = 0; i < 100; i++) {
+			translate[3] = glm::vec3(50, 0, 500 - (i * 10)); // Update the missile's position.
+			printf("[position] %d \n", i);
+		}
+	}
+
+	missileFired = true;
+}
+
+void animate() {
+
+	for (int i = 0; i < nModels; i++) {
+		modelMatrix = glm::translate(glm::mat4(), translate[i]);
+	}
+
+	glutPostRedisplay();
+}
+
+void intervalTime (int i) {
+
+}
 
 void display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -79,6 +109,7 @@ void display() {
       glEnableVertexAttribArray( vNormal[m] );
       glDrawArrays(GL_TRIANGLES, 0, nVertices[m] ); 
       }
+
   glutSwapBuffers();
   }
 
@@ -91,39 +122,46 @@ void updateTitle() {
   glutSetWindowTitle( titleStr);
   }
 
-// Quit or set the view
+// Process keyboard commands.
 void keyboard (unsigned char key, int x, int y) {
-	// Set default distance from camera.
-	const float DIST_FROM_CAMERA = 1000.0f;
+  // Set default distance from camera.
+  float distFromCamera = 1000.0f;
 
   switch(key) {
     case 033 : case 'q' :  case 'Q' : exit(EXIT_SUCCESS); break;
     case 'f' : case 'F' :  // front view
-        eye = glm::vec3(0.0f, 0.0f, DIST_FROM_CAMERA);   // eye is n-units "out of screen" from origin
+        eye = glm::vec3(0.0f, 0.0f, distFromCamera);   // eye is n-units "out of screen" from origin
         at  = glm::vec3(0.0f, 0.0f,    0.0f);   // looking at origin
         up  = glm::vec3(0.0f, 1.0f,    0.0f);   // camera's up vector
         strcpy(viewStr, " front view");
 		break;
     case 'r' : case 'R' :  // bottom view
-        eye = glm::vec3(DIST_FROM_CAMERA, 0.0f, 0.0f);   // eye is n-units right from origin
+        eye = glm::vec3(distFromCamera, 0.0f, 0.0f);   // eye is n-units right from origin
         at  = glm::vec3(   0.0f, 0.0f, 0.0f);   // looking at origin
         up  = glm::vec3(   0.0f, 1.0f, 0.0f);   // camera's up vector
         strcpy(viewStr, " right view");
 		break;
     case 't' : case 'T' :  // top view
-        eye = glm::vec3(0.0f, DIST_FROM_CAMERA,  0.0f);   // eye is n-units up from origin
+        eye = glm::vec3(0.0f, distFromCamera,  0.0f);   // eye is n-units up from origin
         at  = glm::vec3(0.0f,    0.0f,  0.0f);   // looking at origin  
         up  = glm::vec3(0.0f,    0.0f, -1.0f);   // camera's up is looking towards -Z vector
         strcpy(viewStr, " top view");
 		break;
 	case 'm' : case 'M' : // Fire missile
-
+		fireMissile(); // Update the missile's position.
+		printf("Missile fired.\n");
+		break;
+	case 'p' : case 'P' : // Reset the missile's starting position.
+		missileFired = false;
+		translate[3] = glm::vec3(50, 0, 500);
+		printf("Missile reset.\n");
 		break;
     }
+
   viewMatrix = glm::lookAt(eye, at, up);
   updateTitle();
-  glutPostRedisplay();
-  }
+
+}
 
 // load the shader programs, vertex data from model files, create the solids, set initial view
 void init() {
@@ -185,6 +223,7 @@ int main(int argc, char* argv[]) {
   glutDisplayFunc(display);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboard);
+  glutIdleFunc(animate);
   glutMainLoop();
   printf("done\n");
   return 0;
