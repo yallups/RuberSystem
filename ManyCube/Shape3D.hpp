@@ -216,11 +216,11 @@ public:
   void gravity() {
 	  float distance = glm::distance(glm::vec3(translationMatrix[3].x,translationMatrix[3].y,translationMatrix[3].z), glm::vec3(0,0,0));
 	  if(distance > 0) {
-		  float gravityVector = 9000 / (distance*distance); 
+		  float gravityVector = 90000 / (distance*distance); 
 		  glm::vec3 direction = glm::normalize(glm::vec3(-1*translationMatrix[3].x,-1*translationMatrix[3].y,-1*translationMatrix[3].z));
 		  direction = glm::vec3(gravityVector*direction.x, gravityVector*direction.y, gravityVector*direction.z);
 		  translationMatrix = glm::translate(translationMatrix, direction);
-		  printf("%f\n", gravityVector);
+		  //printf("%f\n", gravityVector);
 	  }
   }
   Shape3D fireMissile(glm::vec3 direction) {
