@@ -51,14 +51,14 @@ char * modelFile[] = {
 	"ship03_color.tri", 
 	"cube2.tri", 
 	"cube2.tri",
-	"missle.tri", 
-	"missle.tri"
+	"missile.tri", 
+	"missile.tri"
 };
 const GLuint nVerticesSphere = 4900 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesWarbird = 980 * 3;
-const GLuint nVerticesMissileSite = 12 * 3; // missle sites aka cubes
+const GLuint nVerticesMissileSite = 12 * 3; // missile sites aka cubes
 // temporarily I am using the ugly-ass rocket .tri as a missile until we get a reall one
-const GLuint nVerticesMissle = 144 * 3; // missle
+const GLuint nVerticesMissile = 144 * 3; // missile
 
 
 char * rocketModel = "rocket.tri";  // name of Rocket model file
@@ -111,10 +111,10 @@ glm::vec4 vertexMissileSite[nVerticesMissileSite];
 glm::vec3 normalMissileSite[nVerticesMissileSite];
 glm::vec4 diffuseColorMaterialMissileSite[nVerticesMissileSite];
 
-// vectors for "Missles"
-glm::vec4 vertexMissle[nVerticesMissle];
-glm::vec3 normalMissle[nVerticesMissle];
-glm::vec4 diffuseColorMaterialMissle[nVerticesMissle];
+// vectors for "Missiles"
+glm::vec4 vertexMissile[nVerticesMissile];
+glm::vec3 normalMissile[nVerticesMissile];
+glm::vec4 diffuseColorMaterialMissile[nVerticesMissile];
 
 // rotation variables
 glm::mat4 identity(1.0f); 
@@ -247,7 +247,7 @@ void init (void) {
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
 		} else {
-			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissle, vertexMissle, diffuseColorMaterialMissle, normalMissle);
+			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissile, vertexMissile, diffuseColorMaterialMissile, normalMissile);
 			boundingRadius[i] = 50.0f;
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
@@ -263,10 +263,10 @@ void init (void) {
 
 			glGenBuffers( 1, &(buffer[i]) );
 			glBindBuffer( GL_ARRAY_BUFFER, buffer[i] );
-			glBufferData( GL_ARRAY_BUFFER, sizeof(vertexMissle) + sizeof(diffuseColorMaterialMissle) + sizeof(normalMissle), NULL, GL_STATIC_DRAW );
-			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(vertexMissle), vertexMissle );
-			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissle), sizeof(diffuseColorMaterialMissle), diffuseColorMaterialMissle );
-			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissle) + sizeof(diffuseColorMaterialMissle), sizeof(normalMissle), normalMissle );
+			glBufferData( GL_ARRAY_BUFFER, sizeof(vertexMissile) + sizeof(diffuseColorMaterialMissile) + sizeof(normalMissile), NULL, GL_STATIC_DRAW );
+			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(vertexMissile), vertexMissile );
+			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissile), sizeof(diffuseColorMaterialMissile), diffuseColorMaterialMissile );
+			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissile) + sizeof(diffuseColorMaterialMissile), sizeof(normalMissile), normalMissile );
 
 
 			// set up vertex arrays (after shaders are loaded)
@@ -276,11 +276,11 @@ void init (void) {
 
 			vColor[i] = glGetAttribLocation( shaderProgram, "vColor" );
 			glEnableVertexAttribArray( vColor[i] );
-			glVertexAttribPointer( vColor[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissle)) );
+			glVertexAttribPointer( vColor[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissile)) );
 
 			vNormal[i] = glGetAttribLocation( shaderProgram, "vNormal" );
 			glEnableVertexAttribArray( vNormal[i]);
-			glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissle) + sizeof(diffuseColorMaterialMissle)) );
+			glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissile) + sizeof(diffuseColorMaterialMissile)) );
 
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
@@ -390,6 +390,8 @@ void display(void) {
 		} else if (i == 7) {
 			modelMatrix = shape[i]->getModelMatrix(shape[4]->getTranslationMat(), shape[4]->getRotationMat()); 
 			modelMatrix = shape[2]->getRotationMat() * shape[2]->getTranslationMat() * modelMatrix;
+		} else if (i > 7) {
+			modelMatrix = shape[i]->getModelMatrix(); 
 		}
 
 		glBindVertexArray( vao[i] );
@@ -403,10 +405,10 @@ void display(void) {
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesSphere);
 		else if(i==5)
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesWarbird);
-		else if(i > 5 && i < 7)
+		else if(i > 5 && i <= 7)
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissileSite);
 		else
-			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissle);
+			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissile);
 	}
 	glutSwapBuffers();
 }
