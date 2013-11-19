@@ -30,7 +30,7 @@ private :
   glm::vec3 translation; 
   float radians; 
   bool orbital;
-  bool inFlight;// bool for if a missle is in flight we can tell it to keep moving other wise leave it alone.
+  bool inFlight;// bool for if a missile is in flight we can tell it to keep moving other wise leave it alone.
 
 public:
 
@@ -118,7 +118,7 @@ public:
 				missiles = 5;
 				break;
 			case 8: case 9: 
-				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle
+				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missile
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
@@ -256,7 +256,8 @@ public:
   // hopefully takes in the warbirds position and sets it the this position.
   // however I dont think I am doing the right
   void fire(glm::mat4 rot, glm::mat4 trns) {
-	  translationMatrix = rot * trns;
+	  translationMatrix = trns;
+	  rotationMatrix = rot;
 	  inFlight = true;
   }
   };  
