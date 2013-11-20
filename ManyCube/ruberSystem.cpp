@@ -416,37 +416,34 @@ void display(void) {
 void animate(void){
 
 	glm::vec4 pos1;
-	glm::vec4 shipPos = shape[5]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
-	glm::vec4 goodMissilePos = shape[8]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
-	glm::vec4 badMissilePos = shape[9]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
-	glm::vec4 missileSite1 = shape[6]->getModelMatrix(shape[1]->getTranslationMat(), shape[1]->getRotationMat())[3]; 
-	glm::vec4 missilwSite2 = shape[7]->getModelMatrix(shape[4]->getTranslationMat(), shape[4]->getRotationMat())[3]; 
-
-	float d;
-
-	for(int i = 0; i < 5; i++) {	
-		pos1 = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
-		
-		d = sqrtf(pow((pos1.x - shipPos.x),2) + pow((pos1.z - shipPos.z),2) + pow((pos1.z - shipPos.z),2));
-
-		if (d - (boundingRadius[i] + boundingRadius[5]) <= 0) {
-			printf("YOU LOSE!!! BOOOOM! %d <--> %d\n", i, 5);
+	glm::vec4 pos2;
+	
+	for(int i = 0; i < nShapes; i++) {
+		if (i < 6) {
+			pos1 = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
+		} else if (i == 6) {
+			pos1 = shape[i]->getModelMatrix(shape[1]->getTranslationMat(), shape[1]->getRotationMat())[3]; 
+		} else {
+			pos1 = shape[i]->getModelMatrix(shape[4]->getTranslationMat(), shape[4]->getRotationMat())[3]; 
 		}
-	}
+		for(int y = 5; y < 6; y++) {
+			if(y != i) {
+				if (y < 6) {
+					pos2 = shape[y]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
+				} else if (y == 6) {
+					pos2 = shape[y]->getModelMatrix(shape[1]->getTranslationMat(), shape[1]->getRotationMat())[3]; 
+				} else {
+					pos2 = shape[y]->getModelMatrix(shape[4]->getTranslationMat(), shape[4]->getRotationMat())[3]; 
+				}
 
-	d = sqrtf(pow((badMissilePos.x - shipPos.x),2) + pow((badMissilePos.z - shipPos.z),2) + pow((badMissilePos.z - shipPos.z),2));
-	if (d - (boundingRadius[9] + boundingRadius[5]) <= 0) {
-		printf("YOU LOSE!!!! BOOOOM! %d <--> %d\n", 9, 5);
-	}
+				float d = sqrtf(pow((pos1.x - pos2.x),2) + pow((pos1.z - pos2.z),2) + pow((pos1.z - pos2.z),2));
 
-	d = sqrtf(pow((goodMissilePos.x - missileSite1.x),2) + pow((goodMissilePos.z - missileSite1.z),2) + pow((goodMissilePos.z - missileSite1.z),2));
-	if (d - (boundingRadius[8] + boundingRadius[6]) <= 0) {
-		printf("got one: BOOOOM! %d <--> %d\n", 8, 6);
-	}
+				if (d - (boundingRadius[i] + boundingRadius[y]) <= 0) {
+					printf("BOOOOM! %d <--> %d\n", i, y);
 
-	d = sqrtf(pow((goodMissilePos.x - missilwSite2.x),2) + pow((goodMissilePos.z - missilwSite2.z),2) + pow((goodMissilePos.z - missilwSite2.z),2));
-	if (d - (boundingRadius[8] + boundingRadius[7]) <= 0) {
-		printf("got one: BOOOOM! %d <--> %d\n", 8, 7);
+				}
+			}
+		}
 	}
 	
 	
@@ -604,9 +601,6 @@ void keyboard (unsigned char key, int x, int y) {
 		}
 		break;
 	case 'f' : case 'F' : //Fire missile
-		// pressing f should tell shape 8 aka missile 1 the go the where the warbird is and get set in motion.
-		printf("FIRE!!!");
-		shape[8]->fire(shape[5]->getRotationMat(), shape[5]->getTranslationMat());
 		break;
 	case 't' : case 'T' : //Change Time Quantum
 		switch(timerDelay) {
@@ -619,6 +613,12 @@ void keyboard (unsigned char key, int x, int y) {
 	case 'g' : case 'G' : //Toggle Gravity
 		gravity = !gravity;
 		break;
+	case 32 :
+		// pressing space bar should tell shape 8 aka missile 1 the go the where the warbird is and get set in motion.
+		printf("FIRE!!!");
+		shape[8]->fire(shape[5]->getRotationMat(), shape[5]->getTranslationMat());
+
+
 	}
 
 	updateTitle();
