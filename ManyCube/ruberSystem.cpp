@@ -415,38 +415,43 @@ void display(void) {
 
 // for use with Idle and intervalTimer functions 
 // to set rotation
-void animate(void){
+void animate(void){}
 
-	glm::vec4 pos1;
-	glm::vec4 shipPos = shape[5]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
-	glm::vec4 goodMissilePos = shape[8]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
-	glm::vec4 badMissilePos = shape[9]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
-	glm::vec4 missileSite1 = shape[6]->getModelMatrix(shape[1]->getTranslationMat(), shape[1]->getRotationMat())[3]; 
-	glm::vec4 missilwSite2 = shape[7]->getModelMatrix(shape[4]->getTranslationMat(), shape[4]->getRotationMat())[3]; 
+void checkCollisons() {
+
+	glm::vec3 pos1;
+	//glm::vec4 shipPos = shape[5]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
+	
+	glm::vec3 shipPos = shape[5]->getposition();
+	
+	glm::vec3 goodMissilePos = shape[8]->getposition();
+	glm::vec3 badMissilePos = shape[9]->getposition();
+	glm::vec3 missileSite1 = shape[6]->getposition();
+	glm::vec3 missilwSite2 = shape[7]->getposition();
 
 	float d;
 
 	for(int i = 0; i < 5; i++) {	
-		pos1 = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
+		pos1 = shape[i]->getposition(); 
 		
-		d = sqrtf(pow((pos1.x - shipPos.x),2) + pow((pos1.z - shipPos.z),2) + pow((pos1.z - shipPos.z),2));
+		d = sqrtf(pow((pos1.x - shipPos.x),2) + pow((pos1.y - shipPos.y),2) + pow((pos1.z - shipPos.z),2));
 
 		if (d - (boundingRadius[i] + boundingRadius[5]) <= 0) {
 			printf("YOU LOSE!!! BOOOOM! %d <--> %d\n", i, 5);
 		}
 	}
 
-	d = sqrtf(pow((badMissilePos.x - shipPos.x),2) + pow((badMissilePos.z - shipPos.z),2) + pow((badMissilePos.z - shipPos.z),2));
+	d = sqrtf(pow((badMissilePos.x - shipPos.x),2) + pow((badMissilePos.y - shipPos.y),2) + pow((badMissilePos.z - shipPos.z),2));
 	if (d - (boundingRadius[9] + boundingRadius[5]) <= 0) {
 		printf("YOU LOSE!!!! BOOOOM! %d <--> %d\n", 9, 5);
 	}
 
-	d = sqrtf(pow((goodMissilePos.x - missileSite1.x),2) + pow((goodMissilePos.z - missileSite1.z),2) + pow((goodMissilePos.z - missileSite1.z),2));
+	d = sqrtf(pow((goodMissilePos.x - missileSite1.x),2) + pow((goodMissilePos.y - missileSite1.y),2) + pow((goodMissilePos.z - missileSite1.z),2));
 	if (d - (boundingRadius[8] + boundingRadius[6]) <= 0) {
 		printf("got one: BOOOOM! %d <--> %d\n", 8, 6);
 	}
 
-	d = sqrtf(pow((goodMissilePos.x - missilwSite2.x),2) + pow((goodMissilePos.z - missilwSite2.z),2) + pow((goodMissilePos.z - missilwSite2.z),2));
+	d = sqrtf(pow((goodMissilePos.x - missilwSite2.x),2) + pow((goodMissilePos.y - missilwSite2.y),2) + pow((goodMissilePos.z - missilwSite2.z),2));
 	if (d - (boundingRadius[8] + boundingRadius[7]) <= 0) {
 		printf("got one: BOOOOM! %d <--> %d\n", 8, 7);
 	}
@@ -470,7 +475,8 @@ void intervalTimer (int i) {
 		}
 	}
 	movementDirection = 0;
-	
+	checkCollisons();
+
 	glutPostRedisplay();
 }
 
