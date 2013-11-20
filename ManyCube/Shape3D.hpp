@@ -256,7 +256,10 @@ public:
   // hopefully takes in the warbirds position and sets it the this position.
   // however I dont think I am doing the right
   void fire(glm::mat4 rot, glm::mat4 trns) {
-	  translationMatrix = rot * trns;
-	  inFlight = true;
+	  if (missiles) {
+		  translationMatrix = rot * trns;
+		  inFlight = true;
+		  missiles--;
+	  }
   }
   };  
