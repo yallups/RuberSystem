@@ -20,15 +20,10 @@
     <None Include="simpleVertex.glsl" />
     <None Include="duo.tri" />
     <None Include="moon.tri" />
-    <None Include="rocket.tri" />
     <None Include="ruber.tri" />
     <None Include="unum.tri" />
     <None Include="warbird.tri" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="manyCubes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <None Include="missile.tri" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shape3D.hpp">
@@ -37,5 +32,10 @@
     <ClInclude Include="Missile.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ruberSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

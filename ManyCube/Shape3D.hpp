@@ -3,6 +3,9 @@ Shape3D.cpp
 
 Mike Barnes
 9/7/2013
+
+Ian Graham, Shawn Jones, Ronen Adam
+Fall 2013
 */
 
 # ifndef __INCLUDES465__
@@ -30,7 +33,9 @@ private :
 
 public:
 
-	int missiles;
+  int missiles;
+  int traveled; //Count for distance missile has traveled after being fired
+  bool inFlight;// bool for if a missile is in flight we can tell it to keep moving other wise leave it alone.
 
   glm::mat4 getRotationMat(){
 	  return rotationMatrix;
@@ -57,35 +62,35 @@ public:
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.2f);
+				radians = glm::radians(0.11f);
 				orbital = false;
 				break;
 			case 1: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make Unum
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(400, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.4f); //Rotate around Ruber
+				radians = glm::radians(0.22f); //Rotate around Ruber
 				orbital = true;
 				break;
 			case 2: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(40, 40, 40));  // make Duo
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(-700, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.2f); //Rotate around Ruber
+				radians = glm::radians(0.11f); //Rotate around Ruber
 				orbital = true;
 				break;
 			case 3: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(10, 10, 10));  // make Primus
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(-50, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.2f); //Rotate around Duo
+				radians = glm::radians(0.11f); //Rotate around Duo
 				orbital = true;
 				break;
 			case 4: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(15, 15, 15));  // make Secundus
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(100, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
-				radians = glm::radians(0.4f); //Rotate around Duo
+				radians = glm::radians(0.22f); //Rotate around Duo
 				orbital = true;
 				break;
 			case 5: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(5, 5, 5));  // make Warbird
@@ -97,7 +102,7 @@ public:
 				missiles = 10;
 				break;
 			case 6:
-				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle site Unum
+				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missile site Unum
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 10, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
@@ -105,7 +110,7 @@ public:
 				orbital = true;
 				missiles = 5;
 				break;
-			case 7: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missle site Secundus
+			case 7: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missile site Secundus
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 10, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
@@ -113,10 +118,19 @@ public:
 				orbital = true;
 				missiles = 5;
 				break;
-
+			case 8: case 9: 
+				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(20, 20, 20));  // make missile
+				translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
+				//set cube's  rotation axis and rotation radians
+				rotationAxis = glm::vec3(0,  1, 0);
+				radians = glm::radians(0.0f); //No Rotation
+				orbital = false;
+				inFlight = false;
+				traveled = 0;
+				break;
+			
 		}
 		rotationMatrix = glm::mat4();  // no initial orientation
-		// determine rotation type
 	}
 
    glm::mat4 getModelMatrix() {
@@ -134,12 +148,53 @@ public:
 		return(translationMatrix * rotationMatrix * scaleMatrix);
     }
 
-  void update() {
+  void update(int movement) {
 	rotationMatrix = glm::rotate(rotationMatrix, radians, rotationAxis);
-	//translationMatrix = glm::translate(translationMatrix, translation);
-    }  
-  void moveForward() {
-	  glm::vec3 direction = glm::vec3(10*rotationMatrix[2].x,10*rotationMatrix[2].y,10*rotationMatrix[2].z);
+
+	//Movement will happen in update depending on what key was last pressed before the update
+	//1: Move forward, 2: Turn Up, 3: Move backward, 4: Turn Down, 5: Turn left, 6: Roll left, 7: Turn right, 8: Roll right
+	if(id == 5) {
+		switch(movement) {
+		case 1: moveForward(10); break;
+		case 2: turnUp(); break;
+		case 3: moveBackward(); break;
+		case 4: turnDown(); break;
+		case 5: turnLeft(); break;
+		case 6: rollLeft(); break;
+		case 7: turnRight(); break;
+		case 8: rollRight(); break;
+		default: break;
+		}
+	} else if (id > 7) { // these are missile
+		if (inFlight) { // if the missile is in flight... 
+			if(traveled >= 50) {
+				detectTarget(); //Find Target
+			}
+			moveForward(5); // we will need to do more than move forward. but this is a place to start
+			traveled++;
+			printPos(); // if you want a constant update on the position of the missile
+			if( traveled > 500) {
+				inFlight = !inFlight;
+			}
+		}
+	}
+  }  
+
+  // some helper functions
+  glm::vec3 getDirection() {
+	  return glm::vec3(10*rotationMatrix[2].x,10*rotationMatrix[2].y,10*rotationMatrix[2].z);
+  }
+  glm::vec3 getposition() {
+	  return glm::vec3(translationMatrix[3].x,translationMatrix[3].y,translationMatrix[3].z);
+  }
+  void printPos() {
+	  glm::vec3 pos = getposition();
+	  printf("Shape %d: x=%d, y=%d, z=%d\n",id,pos.x,pos.y,pos.z);
+  }
+
+
+  void moveForward(int step) {
+	  glm::vec3 direction = glm::vec3(step*rotationMatrix[2].x,step*rotationMatrix[2].y,step*rotationMatrix[2].z);
 	  translationMatrix = glm::translate(translationMatrix, glm::vec3(direction.x,direction.y,direction.z));
   }
   void turnUp() {
@@ -190,17 +245,46 @@ public:
 	  glm::vec3 direction = glm::vec3(0, 10*(rotationMatrix2[2].y), 0);
 	  translationMatrix = glm::translate(translationMatrix, glm::vec3(0,direction.y,0));
   }
-  Shape3D fireMissile(glm::vec3 direction) {
-	  if(missiles) {
-		   
-		  //Make new shape that looks like a missle
-		  //Missile missile = new Missile(direction, getModelMatrix());
-
-		  // set it in motion with an constant translation in its positivve direction
-
-		  missiles--;
-		  //return the instance
-		  //return missile;
+  void warpToPlanet(glm::mat4 tranMatrix, glm::mat4 rotMatrix) {
+	  glm::mat4 translation = glm::translate(glm::mat4(), glm::vec3(0,200.0f, 0));
+	  translationMatrix = rotMatrix * tranMatrix * translation;
+	  rotationMatrix = glm::rotate(glm::mat4(), PI/2, glm::vec3(1.0f,0.0f,0.0f));
+  }
+  void gravity() {
+	  float distance = glm::distance(glm::vec3(translationMatrix[3].x,translationMatrix[3].y,translationMatrix[3].z), glm::vec3(0,0,0));
+	  if(distance > 0) {
+		  float gravityVector = 90000 / (distance*distance); 
+		  glm::vec3 direction = glm::normalize(glm::vec3(-1*translationMatrix[3].x,-1*translationMatrix[3].y,-1*translationMatrix[3].z));
+		  direction = glm::vec3(gravityVector*direction.x, gravityVector*direction.y, gravityVector*direction.z);
+		  translationMatrix = glm::translate(translationMatrix, direction);
+		  //printf("%f\n", gravityVector);
 	  }
+  }
+
+  // hopefully takes in the warbirds position and sets it the this position.
+  // however I dont think I am doing the right
+  void fire(glm::mat4 rot, glm::mat4 trns) {
+	  translationMatrix = trns;
+	  rotationMatrix = rot;
+	  inFlight = true;
+  }
+
+  void detectTarget() { //Find target
+	 /* if(id == 8) {
+		  if(glm::distance(getposition())) {
+
+		  }
+		  if(glm::distance()) {
+
+		  }
+	  } else if(id == 9) {
+		  if(glm::distance()) {
+
+		  }
+	  }*/
+
+  }
+  void orientToward() { //Turn toward target
+
   }
   };  
