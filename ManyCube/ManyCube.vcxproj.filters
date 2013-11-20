@@ -23,7 +23,7 @@
     <None Include="ruber.tri" />
     <None Include="unum.tri" />
     <None Include="warbird.tri" />
-    <None Include="missile.tri" />
+    <None Include="missle.tri" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shape3D.hpp">
