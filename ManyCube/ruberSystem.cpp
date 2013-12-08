@@ -2,7 +2,7 @@
 ruberSystem.cpp
 includes Shape3D.cpp
 
-A modification of manyCubes.cpp that uses C and C++.
+A modification of manyCubes.cpp written by Mike Barnes on 9/7/2013 that uses C and C++.
 This file (ruberSystem.cpp) is a C file -- it defines no classes
 but has the Ruber Solar System, a Warbird, and Missile Sites with missiles.
 
@@ -20,8 +20,6 @@ User commands:
 
 Current state is displayed in the window title.
 
-Mike Barnes
-9/7/2013
 */
 
 
@@ -37,11 +35,15 @@ Mike Barnes
 # include "Missile.hpp"
 # endif
 
+// Constants
+const int ACE = 40, PILOT = 100, TRAINEE = 250, DEBUG = 500;
+const int RUBER = 0, UNUM = 1, DUO = 2,
+	PRIMUS = 3, SECUNDUS = 4, WARBIRD = 5, UNUM_SITE = 6, SECUNDUS_SITE = 7, PLAYER_MISSILE = 8, ENEMY_MISSILE = 9;
 
-// Shapes
+// Shapes and models.
 const int nShapes = 10;
 Shape3D * shape[nShapes];
-// Model for shapes
+
 char * modelFile[] = {
 	"sphere_mr.tri", 
 	"sphere_mr.tri", 
@@ -54,19 +56,21 @@ char * modelFile[] = {
 	"missile.tri", 
 	"missile.tri"
 };
-const GLuint nVerticesSphere = 4900 * 3;  // 3 vertices per line (surface) of model file  
-const GLuint nVerticesWarbird = 980 * 3;
-const GLuint nVerticesMissileSite = 600 * 3; // missile sites aka cubes
+
+// Vertices must be multiplied by 3 as there are 3 vertices per line (surface) of model file.
+const GLuint nVerticesSphere = 4900 * 3;  // Planets
+const GLuint nVerticesWarbird = 980 * 3;  // Warbird (Player's ship)
+const GLuint nVerticesMissileSite = 600 * 3; // Missile launch sites (Enemies)
 // temporarily I am using the ugly-ass rocket .tri as a missile until we get a real one
-const GLuint nVerticesMissile = 144 * 3; // missile
+const GLuint nVerticesMissile = 144 * 3; // Missile (Same model used for player and enemies)
 
 float boundingRadius[nShapes];  // modelFile's bounding radius
-int Index =  0;  // global variable indexing into VBO arrays
+int Index =  0;  // Global variable indexing into VBO arrays.
 
 // display state and "state strings" for title display
 // window title strings
 char baseStr[60] = "465 Ruber Solar System {v, p, w, f, t} :";
-char fpsStr[15], viewStr[15] =    " Front View";
+char fpsStr[15], viewStr[15] = " Front View";
 char titleStr [100]; 
 
 char viewCase = 'f';
@@ -114,12 +118,14 @@ glm::vec4 diffuseColorMaterialMissile[nVerticesMissile];
 // rotation variables
 glm::mat4 identity(1.0f); 
 glm::mat4 rotation;
-const int ACE = 40, PILOT = 100, TRAINEE = 250, DEBUG = 500;
-int timerDelay = ACE, frameCount = 0;
+
+// Game environment settings.
+int timerDelay = ACE, frameCount = 0;  // Set initial game speed.
 
 int movementDirection = 0;
-boolean gravity = false;
+boolean gravity = false;  // Set initial gravity state.
 
+// Initialize the game environment.
 void init (void) {
 	for(int i = 0; i < nShapes; i++) {
 		if(i < 5){	   
@@ -200,7 +206,7 @@ void init (void) {
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
-		} else if (i > 5 && i < 7) {
+		} else if (i > 5 && i < 8) {
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissileSite, vertexMissileSite, diffuseColorMaterialMissileSite, normalMissileSite);
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
@@ -282,10 +288,10 @@ void init (void) {
 		}
 	}
 
-	// initially use a front view
-	eye = glm::vec3(0.0f, 0.0f, 4000.0f);   // eye is 4000 "out of screen" from origin
-	at  = glm::vec3(0.0f, 0.0f,    0.0f);   // looking at origin
-	up  = glm::vec3(0.0f, 1.0f,    0.0f);   // camera'a up vector
+	// Initially use a front view.
+	eye = glm::vec3(0.0f, 0.0f, 4000.0f);   // 'eye' is 4000 "out of screen" from the origin.
+	at  = glm::vec3(0.0f, 0.0f,    0.0f);   // Looking at the origin.
+	up  = glm::vec3(0.0f, 1.0f,    0.0f);   // Camera's 'up' vector.
 	viewMatrix = glm::lookAt(eye, at, up);
 
 	// set render state values
