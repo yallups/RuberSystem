@@ -49,23 +49,18 @@ char * modelFile[] = {
 	"sphere_mr.tri", 
 	"sphere_mr.tri", 
 	"ship03_color.tri", 
-	"cube2.tri", 
-	"cube2.tri",
+	"missile_site.tri", 
+	"missile_site.tri",
 	"missile.tri", 
 	"missile.tri"
 };
 const GLuint nVerticesSphere = 4900 * 3;  // 3 vertices per line (surface) of model file  
 const GLuint nVerticesWarbird = 980 * 3;
-const GLuint nVerticesMissileSite = 12 * 3; // missile sites aka cubes
+const GLuint nVerticesMissileSite = 600 * 3; // missile sites aka cubes
 // temporarily I am using the ugly-ass rocket .tri as a missile until we get a real one
 const GLuint nVerticesMissile = 144 * 3; // missile
 
-
-char * rocketModel = "rocket.tri";  // name of Rocket model file
-const GLuint nVerticesRocket = 144 * 3;  // 3 vertices per line (surface) of model file  
-
 float boundingRadius[nShapes];  // modelFile's bounding radius
-float boundingRadiusRocket;  // modelFile's bounding radius
 int Index =  0;  // global variable indexing into VBO arrays
 
 // display state and "state strings" for title display
@@ -173,7 +168,7 @@ void init (void) {
 			else
 				printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
 			
-			boundingRadius[i] = boundingRadius[i] + 50.0f; //Warbird has larger radius
+			boundingRadius[i] = boundingRadius[i] + 5.0f; //Warbird has larger radius
 
 			shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 			glUseProgram(shaderProgram);
@@ -214,7 +209,7 @@ void init (void) {
 				printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
 
 			
-			boundingRadius[i] = boundingRadius[i] + 30.0f;
+			boundingRadius[i] = boundingRadius[i] + 3.0f;
 
 			shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 			glUseProgram(shaderProgram);
@@ -248,7 +243,6 @@ void init (void) {
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
 		} else {
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissile, vertexMissile, diffuseColorMaterialMissile, normalMissile);
-			boundingRadius[i] = 50.0f;
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
 				exit(1); }
@@ -299,7 +293,10 @@ void init (void) {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// create shape
-	for(int i = 0; i < nShapes; i++) shape[i] = new Shape3D(i);
+	for(int i = 0; i < nShapes; i++) {
+		shape[i] = new Shape3D(i);
+		shape[i]->setBoundingRadius(boundingRadius[i]);
+	}
 	printf("%d Shapes created \n", nShapes);
 }
 
@@ -383,14 +380,8 @@ void display(void) {
 	// update model matrix, set MVP, draw
 	updateView();
 	for(int i = 0; i < nShapes; i++) { 
-		if (i < 6) {
-			modelMatrix = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat()); 
-		} else if (i == 6) {
-			modelMatrix = shape[i]->getModelMatrix(shape[1]->getTranslationMat(), shape[1]->getRotationMat()); 
-		} else if (i == 7) {
-			modelMatrix = shape[i]->getModelMatrix(shape[4]->getTranslationMat(), shape[4]->getRotationMat()); 
-			modelMatrix = shape[2]->getRotationMat() * shape[2]->getTranslationMat() * modelMatrix;
-		} else if (i > 7) {
+		modelMatrix = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat()); 
+		if (i > 7) {
 			modelMatrix = shape[i]->getModelMatrix(); 
 		}
 
@@ -412,52 +403,121 @@ void display(void) {
 	}
 	glutSwapBuffers();
 }
+boolean detectCollision(float br1, glm::vec3 pos1, float br2, glm::vec3 pos2) {
+	float d = glm::distance(pos1, pos2);//sqrtf(pow((pos1.x - pos2.x),2) + pow((pos1.y - pos2.y),2) + pow((pos1.z - pos2.z),2));
+	return (d - (br1 + br2) <= 0);
+}
+void checkCollides(){
+	int warbirdObjects[8] = {0,1,2,3,4,6,7,9};
+	int missileSiteObjects[2] = {5, 8};
+	int myMissileObjects[7] = {0,2,3,4,6,7,9};
+	int enemyMissileObjects[6] = {0,1,2,3,5,8};
+
+	for(int i = 0; i < 8; i++) {
+		if(detectCollision(shape[5]->getBoundingRadius(), shape[5]->getPosition(), shape[warbirdObjects[i]]->getBoundingRadius(), shape[warbirdObjects[i]]->getPosition()))
+		{
+			printf("You have died!\n");
+			shape[5]->isDead = true;
+		}
+	}
+	for(int i = 0; i < 7; i++) {
+		if(detectCollision(shape[8]->getBoundingRadius(), shape[8]->getPosition(), shape[myMissileObjects[i]]->getBoundingRadius(), shape[myMissileObjects[i]]->getPosition()) && shape[8]->traveled > 10)
+		{
+			shape[8]->inFlight = false;
+		}
+	}
+	for(int i = 0; i < 6; i++) {
+		if(detectCollision(shape[9]->getBoundingRadius(), shape[9]->getPosition(), shape[enemyMissileObjects[i]]->getBoundingRadius(), shape[enemyMissileObjects[i]]->getPosition()) && shape[9]->traveled > 10)
+		{
+			shape[9]->inFlight = false;
+		}
+	}
+	for(int i = 0; i < 2; i++) {
+		if(detectCollision(shape[6]->getBoundingRadius(), shape[6]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()))
+		{
+			if(!(shape[8]->inFlight && i == 8)) {	//If isn't missile nor missile is in flight
+			} else if(shape[5]->isDead) {			//If warbird is dead
+			} else {
+				printf("Unum Missile Site Hit!\n");
+				shape[6]->isDead = true;
+			}
+		}
+		if(detectCollision(shape[7]->getBoundingRadius(), shape[7]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()) && shape[8]->inFlight)
+		{
+			if(!(shape[8]->inFlight && i == 8)) {	//If isn't missile nor missile is in flight
+			} else if(shape[5]->isDead) {			//If warbird is dead
+			} else {
+				printf("Segundus Missile Site Hit!\n");
+				shape[7]->isDead = true;
+			}
+		}
+	}
+}
+void missileSiteDetection() {
+	
+	if(glm::distance(shape[6]->getPosition(), shape[5]->getPosition()) < 500 && shape[6]->missiles > 0 && !shape[9]->inFlight && !shape[6]->isDead && (shape[9]->traveled > 250 || shape[9]->traveled == 0)) {
+		shape[9]->traveled = 0;
+		glm::mat4 direction = glm::mat4();
+		direction[2] = glm::normalize(glm::vec4(shape[5]->getPosition() - shape[6]->getPosition(), 0.0f));
+		glm::mat4 theposition = glm::translate(glm::mat4(), shape[6]->getPosition());
+		shape[9]->fire(direction , theposition);
+		shape[6]->missiles--;
+	} else if(glm::distance(shape[7]->getPosition(), shape[5]->getPosition()) < 500 && shape[7]->missiles > 0 && !shape[9]->inFlight && !shape[7]->isDead && (shape[9]->traveled > 250 || shape[9]->traveled == 0)) {
+		shape[9]->traveled = 0;
+		glm::mat4 direction = glm::mat4();
+		direction[2] = glm::normalize(glm::vec4(shape[5]->getPosition() - shape[7]->getPosition(), 0.0f));
+		glm::mat4 theposition = glm::translate(glm::mat4(), shape[7]->getPosition());
+		shape[9]->fire(direction , theposition);
+		shape[7]->missiles--;
+	}
+}
+
 
 // for use with Idle and intervalTimer functions 
 // to set rotation
 void animate(void){}
 
-void checkCollisons() {
-
-	glm::vec3 pos1;
-	//glm::vec4 shipPos = shape[5]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
-	
-	glm::vec3 shipPos = shape[5]->getposition();
-	
-	glm::vec3 goodMissilePos = shape[8]->getposition();
-	glm::vec3 badMissilePos = shape[9]->getposition();
-	glm::vec3 missileSite1 = shape[6]->getposition();
-	glm::vec3 missilwSite2 = shape[7]->getposition();
-
-	float d;
-
-	for(int i = 0; i < 5; i++) {	
-		pos1 = shape[i]->getposition(); 
-		
-		d = sqrtf(pow((pos1.x - shipPos.x),2) + pow((pos1.y - shipPos.y),2) + pow((pos1.z - shipPos.z),2));
-
-		if (d - (boundingRadius[i] + boundingRadius[5]) <= 0) {
-			printf("YOU LOSE!!! BOOOOM! %d <--> %d\n", i, 5);
-		}
-	}
-
-	d = sqrtf(pow((badMissilePos.x - shipPos.x),2) + pow((badMissilePos.y - shipPos.y),2) + pow((badMissilePos.z - shipPos.z),2));
-	if (d - (boundingRadius[9] + boundingRadius[5]) <= 0) {
-		printf("YOU LOSE!!!! BOOOOM! %d <--> %d\n", 9, 5);
-	}
-
-	d = sqrtf(pow((goodMissilePos.x - missileSite1.x),2) + pow((goodMissilePos.y - missileSite1.y),2) + pow((goodMissilePos.z - missileSite1.z),2));
-	if (d - (boundingRadius[8] + boundingRadius[6]) <= 0) {
-		printf("got one: BOOOOM! %d <--> %d\n", 8, 6);
-	}
-
-	d = sqrtf(pow((goodMissilePos.x - missilwSite2.x),2) + pow((goodMissilePos.y - missilwSite2.y),2) + pow((goodMissilePos.z - missilwSite2.z),2));
-	if (d - (boundingRadius[8] + boundingRadius[7]) <= 0) {
-		printf("got one: BOOOOM! %d <--> %d\n", 8, 7);
-	}
-	
-
-}
+//void checkCollisons() {
+//
+//	glm::vec3 pos1;
+//	//glm::vec4 shipPos = shape[5]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
+//	
+//	glm::vec3 shipPos = shape[5]->getposition();
+//	
+//	glm::vec3 goodMissilePos = shape[8]->getposition();
+//	glm::vec3 badMissilePos = shape[9]->getposition();
+//	glm::vec3 missileSite1 = shape[6]->getposition();
+//	glm::vec3 missilwSite2 = shape[7]->getposition();
+//
+//	float d;
+//
+//	for(int i = 0; i < 5; i++) {	
+//		pos1 = shape[i]->getposition(); 
+//		
+//		d = sqrtf(pow((pos1.x - shipPos.x),2) + pow((pos1.y - shipPos.y),2) + pow((pos1.z - shipPos.z),2));
+//
+//		if (d - (boundingRadius[i] + boundingRadius[5]) <= 0) {
+//			printf("YOU LOSE!!! BOOOOM! %d <--> %d\n", i, 5);
+//		}
+//	}
+//
+//	d = sqrtf(pow((badMissilePos.x - shipPos.x),2) + pow((badMissilePos.y - shipPos.y),2) + pow((badMissilePos.z - shipPos.z),2));
+//	if (d - (boundingRadius[9] + boundingRadius[5]) <= 0) {
+//		printf("YOU LOSE!!!! BOOOOM! %d <--> %d\n", 9, 5);
+//	}
+//
+//	d = sqrtf(pow((goodMissilePos.x - missileSite1.x),2) + pow((goodMissilePos.y - missileSite1.y),2) + pow((goodMissilePos.z - missileSite1.z),2));
+//	if (d - (boundingRadius[8] + boundingRadius[6]) <= 0) {
+//		printf("got one: BOOOOM! %d <--> %d\n", 8, 6);
+//	}
+//
+//	d = sqrtf(pow((goodMissilePos.x - missilwSite2.x),2) + pow((goodMissilePos.y - missilwSite2.y),2) + pow((goodMissilePos.z - missilwSite2.z),2));
+//	if (d - (boundingRadius[8] + boundingRadius[7]) <= 0) {
+//		printf("got one: BOOOOM! %d <--> %d\n", 8, 7);
+//	}
+//	
+//
+//}
 
 
 // Estimate FPS, use fixed interval timer to measure every second
@@ -468,16 +528,35 @@ void intervalTimer (int i) {
 	sprintf(fpsStr, " FPS %4d", frameCount );
 	frameCount = 1000/timerDelay;
 	updateTitle();
+	glutPostRedisplay();
 	for(int i = 0; i < nShapes; i++) {
-		shape[i] -> update(movementDirection);
+		if(i < 8) {
+			shape[i] -> update(movementDirection);
+		} else if(i == 8 && shape[i]->inFlight) {
+			float site1 = glm::distance(shape[i]->getPosition(),shape[6]->getPosition());
+			
+			float site2 = glm::distance(shape[i]->getPosition(),shape[7]->getPosition());
+			
+			if(shape[6]->isDead) site1 = 1000000.0f;
+			else if(shape[7]->isDead) site2 = 1000000.0f;
+
+			if(site1 <= site2) {
+				printf("Target = Unum\n");
+				shape[i] -> update(movementDirection,shape[6]->getPosition());
+			} else {
+				printf("Target = Segundus\n");
+				shape[i] -> update(movementDirection,shape[7]->getPosition());
+			}
+		} else if(i == 9 && shape[i]->inFlight) {
+			shape[i] -> update(movementDirection,shape[5]->getPosition());
+		}
 		if(gravity && (i == 5 || i > 7)) {
 			shape[i]->gravity(); 
 		}
 	}
+	missileSiteDetection();
+	checkCollides();
 	movementDirection = 0;
-	checkCollisons();
-
-	glutPostRedisplay();
 }
 
 void process_SHIFT_ALT_CTRL(int key, int x, int y) 
@@ -612,11 +691,13 @@ void keyboard (unsigned char key, int x, int y) {
 		}
 		break;
 	case 'f' : case 'F' : //Fire missile
-		if(shape[5]->missiles > 0 && !shape[8]->inFlight) {
+		if(shape[5]->missiles > 0 && !shape[8]->inFlight && !shape[5]->isDead) {
 			printf("FIRE!!!");
 			shape[8]->traveled = 0;
 			shape[8]->fire(shape[5]->getRotationMat(), shape[5]->getTranslationMat());
 			shape[5]->missiles--;
+		} else if(shape[5]->isDead) {
+			printf("Ship is dead\n");
 		} else if(shape[5]->missiles == 0) {
 			printf("No more missiles!");
 		} else {
@@ -638,6 +719,8 @@ void keyboard (unsigned char key, int x, int y) {
 		shape[5]->missiles = 10;
 		shape[6]->missiles = 5;
 		shape[7]->missiles = 5;
+		shape[5]->setTranslationMat(glm::translate(glm::mat4(), glm::vec3(500.0f,0,500.0f)));
+		shape[5]->isDead = shape[6]->isDead = shape[7]->isDead = false;
 		break;
 
 

@@ -80,7 +80,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Missile.hpp" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Shape3D.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RuberSystem.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
