@@ -542,36 +542,46 @@ void intervalTimer (int i) {
 	frameCount = 1000/timerDelay;
 	updateTitle();
 	glutPostRedisplay();
-	for(int i = 0; i < nShapes; i++) {
-		if(i < 8) {
+
+	for (int i = 0; i < nShapes; i++) {
+
+		if (i < PLAYER_MISSILE) {  // Update all objects other than missiles.
 			shape[i] -> update(movementDirection);
-		} else if(i == 8 && shape[i]->inFlight) {
+		} else if (i == PLAYER_MISSILE && shape[i]->inFlight) {  // Update the player's missile if it is in flight.
 			float site1 = glm::distance(shape[i]->getPosition(),shape[6]->getPosition());
 			
 			float site2 = glm::distance(shape[i]->getPosition(),shape[7]->getPosition());
 			
-			if(shape[6]->isDead) site1 = 1000000.0f;
-			else if(shape[7]->isDead) site2 = 1000000.0f;
+			// If they are hit, reposition the missile sites so that player's missile won't detect it when looking for the closest target.
+			if (shape[6]->isDead)
+				site1 = 1000000.0f;
+			else if(shape[7]->isDead)
+				site2 = 1000000.0f;
 
-			if(site1 <= site2) {
+			// Determine which missile site is closer. Player's missile should target the closer site.
+			if (site1 <= site2) {
 				printf("Target = Unum\n");
 				shape[i] -> update(movementDirection,shape[6]->getPosition());
 			} else {
 				printf("Target = Segundus\n");
 				shape[i] -> update(movementDirection,shape[7]->getPosition());
 			}
-		} else if(i == 9 && shape[i]->inFlight) {
+		} else if (i == ENEMY_MISSILE && shape[i]->inFlight) {  // Update the enemy's missile if it is in flight.
 			shape[i] -> update(movementDirection,shape[5]->getPosition());
 		}
-		if(gravity && (i == 5 || i > 7)) {
+
+		if (gravity && (i == WARBIRD || i > SECUNDUS_SITE)) {  // Update the warbird if gravity is enabled.
 			shape[i]->gravity(); 
 		}
+
 	}
+
 	missileSiteDetection();
 	checkCollides();
 	movementDirection = 0;
 }
 
+// Handle special modifier keys like SHIFT, ALT, and CTRL.
 void process_SHIFT_ALT_CTRL(int key, int x, int y) 
 {
 	int mod = glutGetModifiers();
@@ -618,7 +628,7 @@ void process_SHIFT_ALT_CTRL(int key, int x, int y)
 	}
 }
 
-
+// Handle keyboard input.
 void keyboard (unsigned char key, int x, int y) {
 	int mod = glutGetModifiers();
 
@@ -679,45 +689,45 @@ void keyboard (unsigned char key, int x, int y) {
 	case 033 : case 'q' :  case 'Q' : 
 		exit(EXIT_SUCCESS); 
 		break;
-	case 'v' : case 'V' :
+	case 'v' : case 'V' :  // Switch the world camera view sequentially.
 		switch(viewCase) {
-		case 'f' : viewCase = 't'; break;
-		case 't' : viewCase = 'b'; break;
-		case 'b' : viewCase = 'f'; break;
+		case 'f' : viewCase = 't'; break;  // If front view, set top view.
+		case 't' : viewCase = 'b'; break;  // If top view, set bottom view.
+		case 'b' : viewCase = 'f'; break;  // If bottom view, set front view.
 		default : viewCase = 'f'; break;
 		}
 		break;
-	case 'p' : case 'P' :
+	case 'p' : case 'P' :  // Switch the planet camera views sequentially.
 		switch(viewCase) {
-		case 'u' : viewCase = 'd'; break;
-		case 'd' : viewCase = 'u'; break;
+		case 'u' : viewCase = 'd'; break;  // If Unum view, set Duo view.
+		case 'd' : viewCase = 'u'; break;  // If Duo view, set Unum view.
 		default : viewCase = 'u'; break;
 		}
 		break;
-	case 'w' : case 'W' :
+	case 'w' : case 'W' :  // Warp to different locations with the warbird.
 		switch(warpCase) {
-		case 'u' : warpCase = 'd'; shape[5]->warpToPlanet(shape[1]->getTranslationMat(), shape[1]->getRotationMat());
+		case 'u' : warpCase = 'd'; shape[5]->warpToPlanet(shape[1]->getTranslationMat(), shape[1]->getRotationMat());  // If at Unum, warp to Duo.
 			break;
-		case 'd' : warpCase = 'u'; shape[5]->warpToPlanet(shape[2]->getTranslationMat(), shape[2]->getRotationMat());
+		case 'd' : warpCase = 'u'; shape[5]->warpToPlanet(shape[2]->getTranslationMat(), shape[2]->getRotationMat());  // If at Duo, warp to Unum.
 			break;
 		default : warpCase = 'u'; break;
 		}
 		break;
-	case 'f' : case 'F' : //Fire missile
+	case 'f' : case 'F' : // Fire the player's missile.
 		if(shape[5]->missiles > 0 && !shape[8]->inFlight && !shape[5]->isDead) {
-			printf("FIRE!!!");
+			printf("FIRE!!!\n");
 			shape[8]->traveled = 0;
 			shape[8]->fire(shape[5]->getRotationMat(), shape[5]->getTranslationMat());
 			shape[5]->missiles--;
 		} else if(shape[5]->isDead) {
 			printf("Ship is dead\n");
 		} else if(shape[5]->missiles == 0) {
-			printf("No more missiles!");
+			printf("No more missiles!\n");
 		} else {
-			printf("Missile is already in Flight!");
+			printf("Missile is already in Flight!\n");
 		}
 		break;
-	case 't' : case 'T' : //Change Time Quantum
+	case 't' : case 'T' : // Change the time quantum. (game speed = difficulty)
 		switch(timerDelay) {
 		case ACE: timerDelay = PILOT; break;
 		case PILOT: timerDelay = TRAINEE; break;
@@ -725,10 +735,10 @@ void keyboard (unsigned char key, int x, int y) {
 		case DEBUG: timerDelay = ACE; break;
 		}
 		break;
-	case 'g' : case 'G' : //Toggle Gravity
+	case 'g' : case 'G' : // Toggle gravity.
 		gravity = !gravity;
 		break;
-	case 'r' : case 'R' : //Reset missiles and Game
+	case 'r' : case 'R' : // Reset missiles and game.
 		shape[5]->missiles = 10;
 		shape[6]->missiles = 5;
 		shape[7]->missiles = 5;
@@ -749,6 +759,7 @@ int main(int argc, char* argv[]) {
 	glutInitContextVersion(3, 3);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 	glutCreateWindow("465 Ruber Solar System {v, p, w, f, t} : Front View");
+
 	// initialize and verify glew
 	glewExperimental = GL_TRUE;  // needed my home system 
 	GLenum err = glewInit();  
@@ -760,9 +771,10 @@ int main(int argc, char* argv[]) {
 			glGetString(GL_VERSION),
 			glGetString(GL_SHADING_LANGUAGE_VERSION));
 	}
-	// initialize scene
+	// Initialize the scene.
 	init();
-	// set glut callback functions
+
+	// Set glut callback functions.
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
@@ -771,5 +783,6 @@ int main(int argc, char* argv[]) {
 	glutTimerFunc(timerDelay, intervalTimer, 1);
 	glutMainLoop();
 	printf("done\n");
+
 	return 0;
 }
