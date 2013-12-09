@@ -1,0 +1,28 @@
+﻿Build started 12/8/2013 7:22:19 PM.
+     1>Project "C:\Users\ra342445\Documents\Visual Studio 2012\Projects\ruberSystem\ruberSystem.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _CRT_SECURE_NO_DEPRECATE /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt ruberSystem.cpp
+         ruberSystem.cpp
+         GLM: Windows platform detected
+         GLM: Visual C++ compiler detected
+         GLM: 32 bits model
+         GLM: C++ with VC language extensions
+         GLM: SSE2 instruction set
+         GLM: x,y,z,w; r,g,b,a; s,t,p,q component names for all vector types
+         GLM: Swizzling operators enabled
+         GLM: Core library included
+         GLM: GLM_GTC_half_float extension included
+         GLM: GLM_GTC_constants extension included
+         GLM: GLM_GTC_matrix_transform extension included
+         GLM: GLM_GTC_quaternion extension included
+         GLM: GLM_GTC_type_ptr extension included
+     1>c:\users\ra342445\documents\visual studio 2012\projects\rubersystem\rubersystem.cpp(305): warning C4101: 'str' : unreferenced local variable
+     1>c:\users\ra342445\documents\visual studio 2012\projects\rubersystem\includes465\trimodel465.h(94): warning C4715: 'loadTriModel' : not all control paths return a value
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\ra342445\Documents\Visual Studio 2012\Projects\ruberSystem\Debug\ruberSystem.exe" /INCREMENTAL /NOLOGO freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\ra342445\Documents\Visual Studio 2012\Projects\ruberSystem\Debug\ruberSystem.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\ra342445\Documents\Visual Studio 2012\Projects\ruberSystem\Debug\ruberSystem.lib" /MACHINE:X86 Debug\ruberSystem.obj
+         ruberSystem.vcxproj -> C:\Users\ra342445\Documents\Visual Studio 2012\Projects\ruberSystem\Debug\ruberSystem.exe
+     1>Done Building Project "C:\Users\ra342445\Documents\Visual Studio 2012\Projects\ruberSystem\ruberSystem.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.73
