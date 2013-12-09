@@ -79,8 +79,8 @@ char warpCase = 'u';
 GLuint vao[nShapes];  // VertexArrayObject
 GLuint buffer[nShapes]; // Create and initialize a buffer object
 GLuint shaderProgram; 
-char * vertexShaderFile = "simpleVertex.glsl";
-char * fragmentShaderFile = "simpleFragment.glsl";
+char * vertexShaderFile = "viewVertex.glsl";
+char * fragmentShaderFile = "viewFragment.glsl";
 GLuint Model, ViewProj ;  // Mode, View*Projection handles
 
 glm::mat4 projectionMatrix;     // set in reshape()
@@ -380,7 +380,8 @@ void display(void) {
 	updateView();
 
 	for (int i = 0; i < nShapes; i++) { 
-		modelMatrix = shape[i]->getModelMatrix(shape[DUO]->getTranslationMat(), shape[DUO]->getRotationMat()); 
+		modelMatrix = shape[i]->getModelMatrix(shape[DUO]->getTranslationMat(), shape[DUO]->getRotationMat());
+
 		if (i > SECUNDUS_SITE) {
 			modelMatrix = shape[i]->getModelMatrix(); 
 		}
@@ -402,6 +403,7 @@ void display(void) {
 		else
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissile);  // Draw missiles.
 	}
+
 	glutSwapBuffers();
 }
 
@@ -758,8 +760,6 @@ void keyboard (unsigned char key, int x, int y) {
 		shape[WARBIRD]->setTranslationMat(glm::translate(glm::mat4(), glm::vec3(500.0f,0,500.0f)));
 		shape[WARBIRD]->isDead = shape[UNUM_SITE]->isDead = shape[SECUNDUS_SITE]->isDead = false;
 		break;
-
-
 	}
 
 	updateTitle();
