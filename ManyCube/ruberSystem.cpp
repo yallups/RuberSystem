@@ -45,12 +45,12 @@ const int nShapes = 10;
 Shape3D * shape[nShapes];
 
 char * modelFile[] = {
-	"sphere_mr.tri", 
-	"sphere_mr.tri", 
-	"sphere_mr.tri", 
-	"sphere_mr.tri", 
-	"sphere_mr.tri", 
-	"ship03_color.tri", 
+	"ruber.tri", 
+	"unum.tri", 
+	"duo.tri", 
+	"primus.tri", 
+	"secundus.tri", 
+	"warbird_color.tri", 
 	"missile_site.tri", 
 	"missile_site.tri",
 	"missile.tri", 
