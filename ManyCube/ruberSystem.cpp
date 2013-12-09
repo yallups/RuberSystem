@@ -125,7 +125,7 @@ int timerDelay = ACE, frameCount = 0;  // Set initial game speed.
 int movementDirection = 0;
 boolean gravity = false;  // Set initial gravity state.
 
-// Initialize the game environment.
+// Initialize the scene.
 void init (void) {
 	for(int i = 0; i < nShapes; i++) {
 		if (i < WARBIRD) {  // Initialize planetary bodies.
@@ -203,7 +203,7 @@ void init (void) {
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
-		} else if (i > WARBIRD && i < PLAYER_MISSILE) {  // Initialize missile sites.
+		} else if (i == UNUM_SITE || i == SECUNDUS_SITE) {  // Initialize missile sites.
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissileSite, vertexMissileSite, diffuseColorMaterialMissileSite, normalMissileSite);
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
@@ -317,16 +317,16 @@ void updateTitle() {
 }
 
 void updateView() {
-	glm::mat4 unum = shape[1]->getTranslationMat();
-	glm::mat4 unumrot = shape[1]->getRotationMat();
+	glm::mat4 unum = shape[UNUM]->getTranslationMat();
+	glm::mat4 unumrot = shape[UNUM]->getRotationMat();
 	unum = unumrot*unum;
 
-	glm::mat4 duo = shape[2]->getTranslationMat();
-	glm::mat4 duorot = shape[2]->getRotationMat();
+	glm::mat4 duo = shape[DUO]->getTranslationMat();
+	glm::mat4 duorot = shape[DUO]->getRotationMat();
 	duo = duorot*duo;
 
-	glm::mat4 warbird = shape[5]->getTranslationMat();
-	glm::mat4 warbirdrot = shape[5]->getRotationMat();
+	glm::mat4 warbird = shape[WARBIRD]->getTranslationMat();
+	glm::mat4 warbirdrot = shape[WARBIRD]->getRotationMat();
 
 	glm::mat4 eyePosition = glm::translate(glm::mat4(), glm::vec3(0.0f, 50.0f,-120.0f)); //translate backward from warbird
 	glm::mat4 atPosition = glm::translate(glm::mat4(), glm::vec3(0.0f, 50.0f, 0.0f));
@@ -380,7 +380,7 @@ void display(void) {
 	updateView();
 
 	for (int i = 0; i < nShapes; i++) { 
-		modelMatrix = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat()); 
+		modelMatrix = shape[i]->getModelMatrix(shape[DUO]->getTranslationMat(), shape[DUO]->getRotationMat()); 
 		if (i > SECUNDUS_SITE) {
 			modelMatrix = shape[i]->getModelMatrix(); 
 		}
@@ -397,7 +397,7 @@ void display(void) {
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesSphere);
 		else if (i == WARBIRD)  // Draw warbird.
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesWarbird);
-		else if (i > WARBIRD && i < PLAYER_MISSILE)  // Draw missile sites.
+		else if (i == UNUM_SITE || i == SECUNDUS_SITE)  // Draw missile sites.
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissileSite);
 		else
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissile);  // Draw missiles.
@@ -419,47 +419,47 @@ void checkCollides(){
 	int playerMissileObjects[7] = {RUBER, DUO, PRIMUS, SECUNDUS, UNUM_SITE, SECUNDUS_SITE, ENEMY_MISSILE};
 	int enemyMissileObjects[6] = {RUBER, UNUM, DUO, PRIMUS, WARBIRD, PLAYER_MISSILE};
 
-	for(int i = RUBER; i < PLAYER_MISSILE; i++) {  // Check if the warbird has collided with an object.
-		if(detectCollision(shape[5]->getBoundingRadius(), shape[5]->getPosition(),shape[warbirdObjects[i]]->getBoundingRadius(),shape[warbirdObjects[i]]->getPosition()))
+	for(int i = 0; i < 8; i++) {  // Check if the warbird has collided with an object.
+		if(detectCollision(shape[WARBIRD]->getBoundingRadius(), shape[WARBIRD]->getPosition(),shape[warbirdObjects[i]]->getBoundingRadius(),shape[warbirdObjects[i]]->getPosition()))
 		{
 			printf("You have died!\n");
-			shape[5]->isDead = true;
+			shape[WARBIRD]->isDead = true;
 		}
 	}
 
-	for(int i = 0; i < SECUNDUS_SITE; i++) {  // Check if the player's missile has collided with an object.
-		if(detectCollision(shape[8]->getBoundingRadius(), shape[8]->getPosition(), shape[playerMissileObjects[i]]->getBoundingRadius(), shape[playerMissileObjects[i]]->getPosition()) && shape[8]->traveled > 10)
+	for(int i = 0; i < 7; i++) {  // Check if the player's missile has collided with an object.
+		if(detectCollision(shape[PLAYER_MISSILE]->getBoundingRadius(), shape[PLAYER_MISSILE]->getPosition(), shape[playerMissileObjects[i]]->getBoundingRadius(), shape[playerMissileObjects[i]]->getPosition()) && shape[PLAYER_MISSILE]->traveled > 10)
 		{
-			shape[8]->inFlight = false;
+			shape[PLAYER_MISSILE]->inFlight = false;
 		}
 	}
 
-	for(int i = 0; i < UNUM_SITE; i++) {  // Check if the enemy missile has collided with an object.
-		if(detectCollision(shape[9]->getBoundingRadius(), shape[9]->getPosition(), shape[enemyMissileObjects[i]]->getBoundingRadius(), shape[enemyMissileObjects[i]]->getPosition()) && shape[9]->traveled > 10)
+	for(int i = 0; i < 6; i++) {  // Check if the enemy missile has collided with an object.
+		if(detectCollision(shape[ENEMY_MISSILE]->getBoundingRadius(), shape[ENEMY_MISSILE]->getPosition(), shape[enemyMissileObjects[i]]->getBoundingRadius(), shape[enemyMissileObjects[i]]->getPosition()) && shape[ENEMY_MISSILE]->traveled > 10)
 		{
-			shape[9]->inFlight = false;
+			shape[ENEMY_MISSILE]->inFlight = false;
 		}
 	}
 
-	for(int i = 0; i < DUO; i++) {
+	for(int i = 0; i < 2; i++) {
 		// Check if the Unum missile site has collided with an object.
-		if(detectCollision(shape[6]->getBoundingRadius(), shape[6]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()))
+		if(detectCollision(shape[UNUM_SITE]->getBoundingRadius(), shape[UNUM_SITE]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()))
 		{
-			if(!(shape[8]->inFlight && i == PLAYER_MISSILE)) {	//If isn't missile nor missile is in flight
-			} else if(shape[5]->isDead) {			//If warbird is dead
+			if(!(shape[PLAYER_MISSILE]->inFlight && i == PLAYER_MISSILE)) {	//If isn't missile nor missile is in flight
+			} else if(shape[WARBIRD]->isDead) {			//If warbird is dead
 			} else {
 				printf("Unum Missile Site Hit!\n");
-				shape[6]->isDead = true;
+				shape[UNUM_SITE]->isDead = true;
 			}
 		}
 		// Check if the Secundus missile site has collided with an object.
-		if(detectCollision(shape[7]->getBoundingRadius(), shape[7]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()) && shape[8]->inFlight)
+		if(detectCollision(shape[SECUNDUS_SITE]->getBoundingRadius(), shape[SECUNDUS_SITE]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()) && shape[PLAYER_MISSILE]->inFlight)
 		{
-			if(!(shape[8]->inFlight && i == 8)) {	//If isn't missile nor missile is in flight
-			} else if (shape[5]->isDead) {			//If warbird is dead
+			if(!(shape[PLAYER_MISSILE]->inFlight && i == PLAYER_MISSILE)) {	//If isn't missile nor missile is in flight
+			} else if (shape[WARBIRD]->isDead) {			//If warbird is dead
 			} else {
 				printf("Secundus Missile Site Hit!\n");
-				shape[7]->isDead = true;
+				shape[SECUNDUS_SITE]->isDead = true;
 			}
 		}
 	}
@@ -468,23 +468,36 @@ void checkCollides(){
 // If the warbird is in range, fire an enemy missile.
 void missileSiteDetection() {
 	
-	if(glm::distance(shape[6]->getPosition(), shape[5]->getPosition()) < 500 && shape[6]->missiles > 0 && !shape[9]->inFlight && !shape[6]->isDead && (shape[9]->traveled > 250 || shape[9]->traveled == 0)) {
-		shape[9]->traveled = 0;
+	float distToUnumSite = glm::distance(shape[UNUM_SITE]->getPosition(), shape[WARBIRD]->getPosition());
+	float distToSecundusSite = glm::distance(shape[SECUNDUS_SITE]->getPosition(), shape[WARBIRD]->getPosition());
+	int siteID1 = 0;
+	int siteID2 = 0;
+
+	if (distToUnumSite < distToSecundusSite) {
+		siteID1 = UNUM_SITE;
+		siteID2 = SECUNDUS_SITE;
+
+	} else if (distToSecundusSite <= distToUnumSite) {
+		siteID1 = SECUNDUS_SITE;
+		siteID2 = UNUM_SITE;
+	}
+
+	if(glm::distance(shape[siteID1]->getPosition(), shape[WARBIRD]->getPosition()) < 500 && shape[siteID1]->missiles > 0 && !shape[ENEMY_MISSILE]->inFlight && !shape[siteID1]->isDead && (shape[ENEMY_MISSILE]->traveled > 250 || shape[ENEMY_MISSILE]->traveled == 0)) {
+		shape[ENEMY_MISSILE]->traveled = 0;
 		glm::mat4 direction = glm::mat4();
-		direction[2] = glm::normalize(glm::vec4(shape[5]->getPosition() - shape[6]->getPosition(), 0.0f));
-		glm::mat4 theposition = glm::translate(glm::mat4(), shape[6]->getPosition());
-		shape[9]->fire(direction , theposition);
-		shape[6]->missiles--;
-	} else if(glm::distance(shape[7]->getPosition(), shape[5]->getPosition()) < 500 && shape[7]->missiles > 0 && !shape[9]->inFlight && !shape[7]->isDead && (shape[9]->traveled > 250 || shape[9]->traveled == 0)) {
-		shape[9]->traveled = 0;
+		direction[2] = glm::normalize(glm::vec4(shape[WARBIRD]->getPosition() - shape[siteID1]->getPosition(), 0.0f));
+		glm::mat4 theposition = glm::translate(glm::mat4(), shape[siteID1]->getPosition());
+		shape[ENEMY_MISSILE]->fire(direction , theposition);
+		shape[siteID1]->missiles--;
+	} else if(glm::distance(shape[siteID2]->getPosition(), shape[WARBIRD]->getPosition()) < 500 && shape[siteID2]->missiles > 0 && !shape[ENEMY_MISSILE]->inFlight && !shape[siteID2]->isDead && (shape[ENEMY_MISSILE]->traveled > 250 || shape[ENEMY_MISSILE]->traveled == 0)) {
+		shape[ENEMY_MISSILE]->traveled = 0;
 		glm::mat4 direction = glm::mat4();
-		direction[2] = glm::normalize(glm::vec4(shape[5]->getPosition() - shape[7]->getPosition(), 0.0f));
-		glm::mat4 theposition = glm::translate(glm::mat4(), shape[7]->getPosition());
-		shape[9]->fire(direction , theposition);
-		shape[7]->missiles--;
+		direction[2] = glm::normalize(glm::vec4(shape[WARBIRD]->getPosition() - shape[siteID2]->getPosition(), 0.0f));
+		glm::mat4 theposition = glm::translate(glm::mat4(), shape[siteID2]->getPosition());
+		shape[ENEMY_MISSILE]->fire(direction , theposition);
+		shape[siteID2]->missiles--;
 	}
 }
-
 
 // for use with Idle and intervalTimer functions 
 // to set rotation
@@ -493,14 +506,14 @@ void animate(void){}
 //void checkCollisons() {
 //
 //	glm::vec3 pos1;
-//	//glm::vec4 shipPos = shape[5]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat())[3]; 
+//	//glm::vec4 shipPos = shape[WARBIRD]->getModelMatrix(shape[DUO]->getTranslationMat(), shape[DUO]->getRotationMat())[3]; 
 //	
-//	glm::vec3 shipPos = shape[5]->getposition();
+//	glm::vec3 shipPos = shape[WARBIRD]->getposition();
 //	
-//	glm::vec3 goodMissilePos = shape[8]->getposition();
-//	glm::vec3 badMissilePos = shape[9]->getposition();
-//	glm::vec3 missileSite1 = shape[6]->getposition();
-//	glm::vec3 missilwSite2 = shape[7]->getposition();
+//	glm::vec3 goodMissilePos = shape[PLAYER_MISSILE]->getposition();
+//	glm::vec3 badMissilePos = shape[ENEMY_MISSILE]->getposition();
+//	glm::vec3 missileSite1 = shape[UNUM_SITE]->getposition();
+//	glm::vec3 missilwSite2 = shape[SECUNDUS_SITE]->getposition();
 //
 //	float d;
 //
@@ -548,26 +561,26 @@ void intervalTimer (int i) {
 		if (i < PLAYER_MISSILE) {  // Update all objects other than missiles.
 			shape[i] -> update(movementDirection);
 		} else if (i == PLAYER_MISSILE && shape[i]->inFlight) {  // Update the player's missile if it is in flight.
-			float site1 = glm::distance(shape[i]->getPosition(),shape[6]->getPosition());
+			float site1 = glm::distance(shape[i]->getPosition(),shape[UNUM_SITE]->getPosition());
 			
-			float site2 = glm::distance(shape[i]->getPosition(),shape[7]->getPosition());
+			float site2 = glm::distance(shape[i]->getPosition(),shape[SECUNDUS_SITE]->getPosition());
 			
 			// If they are hit, reposition the missile sites so that player's missile won't detect it when looking for the closest target.
-			if (shape[6]->isDead)
+			if (shape[UNUM_SITE]->isDead)
 				site1 = 1000000.0f;
-			else if(shape[7]->isDead)
+			else if(shape[SECUNDUS_SITE]->isDead)
 				site2 = 1000000.0f;
 
 			// Determine which missile site is closer. Player's missile should target the closer site.
 			if (site1 <= site2) {
 				printf("Target = Unum\n");
-				shape[i] -> update(movementDirection,shape[6]->getPosition());
+				shape[i] -> update(movementDirection,shape[UNUM_SITE]->getPosition());
 			} else {
-				printf("Target = Segundus\n");
-				shape[i] -> update(movementDirection,shape[7]->getPosition());
+				printf("Target = Secundus\n");
+				shape[i] -> update(movementDirection,shape[SECUNDUS_SITE]->getPosition());
 			}
 		} else if (i == ENEMY_MISSILE && shape[i]->inFlight) {  // Update the enemy's missile if it is in flight.
-			shape[i] -> update(movementDirection,shape[5]->getPosition());
+			shape[i] -> update(movementDirection,shape[WARBIRD]->getPosition());
 		}
 
 		if (gravity && (i == WARBIRD || i > SECUNDUS_SITE)) {  // Update the warbird if gravity is enabled.
@@ -586,16 +599,16 @@ void process_SHIFT_ALT_CTRL(int key, int x, int y)
 {
 	int mod = glutGetModifiers();
 
-	glm::mat4 unum = shape[1]->getTranslationMat();
-	glm::mat4 unumrot = shape[1]->getRotationMat();
+	glm::mat4 unum = shape[UNUM]->getTranslationMat();
+	glm::mat4 unumrot = shape[UNUM]->getRotationMat();
 	unum = unumrot*unum;
 
-	glm::mat4 duo = shape[2]->getTranslationMat();
-	glm::mat4 duorot = shape[2]->getRotationMat();
+	glm::mat4 duo = shape[DUO]->getTranslationMat();
+	glm::mat4 duorot = shape[DUO]->getRotationMat();
 	duo = duorot*duo;
 
-	glm::mat4 warbird = shape[5]->getTranslationMat();
-	glm::mat4 warbirdrot = shape[5]->getRotationMat();
+	glm::mat4 warbird = shape[WARBIRD]->getTranslationMat();
+	glm::mat4 warbirdrot = shape[WARBIRD]->getRotationMat();
 	warbird = warbirdrot*warbird;
 
 	//printf("%d, %d, process_SHIFT_ALT_CTRL\n", mod, key);
@@ -603,27 +616,27 @@ void process_SHIFT_ALT_CTRL(int key, int x, int y)
 	switch(key) {
 	case GLUT_KEY_UP :
 		if(mod != 0)
-			movementDirection = 2;//shape[5]->turnUp();
+			movementDirection = 2;//shape[WARBIRD]->turnUp();
 		else
-			movementDirection = 1;//shape[5]->moveForward();
+			movementDirection = 1;//shape[WARBIRD]->moveForward();
 		break;
 	case GLUT_KEY_LEFT :
 		if(mod == 0)
-			movementDirection = 5;//shape[5]->turnLeft();
+			movementDirection = 5;//shape[WARBIRD]->turnLeft();
 		else
-			movementDirection = 6;//shape[5]->rollLeft();
+			movementDirection = 6;//shape[WARBIRD]->rollLeft();
 		break;
 	case GLUT_KEY_RIGHT :
 		if(mod == 0)
-			movementDirection = 7;//shape[5]->turnRight();
+			movementDirection = 7;//shape[WARBIRD]->turnRight();
 		else
-			movementDirection = 8;//shape[5]->rollRight();
+			movementDirection = 8;//shape[WARBIRD]->rollRight();
 		break;
 	case GLUT_KEY_DOWN:
 		if(mod != 0)
-			movementDirection = 4;//shape[5]->turnDown();
+			movementDirection = 4;//shape[WARBIRD]->turnDown();
 		else
-			movementDirection = 3;//shape[5]->moveBackward();
+			movementDirection = 3;//shape[WARBIRD]->moveBackward();
 		break;
 	}
 }
@@ -632,16 +645,16 @@ void process_SHIFT_ALT_CTRL(int key, int x, int y)
 void keyboard (unsigned char key, int x, int y) {
 	int mod = glutGetModifiers();
 
-	glm::mat4 unum = shape[1]->getTranslationMat();
-	glm::mat4 unumrot = shape[1]->getRotationMat();
+	glm::mat4 unum = shape[UNUM]->getTranslationMat();
+	glm::mat4 unumrot = shape[UNUM]->getRotationMat();
 	unum = unumrot*unum;
 
-	glm::mat4 duo = shape[2]->getTranslationMat();
-	glm::mat4 duorot = shape[2]->getRotationMat();
+	glm::mat4 duo = shape[DUO]->getTranslationMat();
+	glm::mat4 duorot = shape[DUO]->getRotationMat();
 	duo = duorot*duo;
 
-	glm::mat4 warbird = shape[5]->getTranslationMat();
-	glm::mat4 warbirdrot = shape[5]->getRotationMat();
+	glm::mat4 warbird = shape[WARBIRD]->getTranslationMat();
+	glm::mat4 warbirdrot = shape[WARBIRD]->getRotationMat();
 	warbird = warbirdrot*warbird;
 
 	//printf("%d, %d, keyboard\n", mod, key);
@@ -649,42 +662,42 @@ void keyboard (unsigned char key, int x, int y) {
 	switch(key) {
 	/*case '8' :
 		if(mod != 0)
-			shape[5]->turnUp();
+			shape[WARBIRD]->turnUp();
 		else
-			shape[5]->moveForward();
+			shape[WARBIRD]->moveForward();
 		break;
 	case '7' :
-		shape[5]->moveLeft();
+		shape[WARBIRD]->moveLeft();
 		break;
 	case '4' :
-		shape[5]->turnLeft();
+		shape[WARBIRD]->turnLeft();
 		break;
 	case '9' :
-		shape[5]->moveRight();
+		shape[WARBIRD]->moveRight();
 		break;
 	case '6' :
-		shape[5]->turnRight();
+		shape[WARBIRD]->turnRight();
 		break;*/
 	case '1':
 		//case 1 prints out the position of each of the missiles and the warbird
-		shape[5]->printPos();
-		shape[8]->printPos();
-		shape[9]->printPos();
+		shape[WARBIRD]->printPos();
+		shape[PLAYER_MISSILE]->printPos();
+		shape[ENEMY_MISSILE]->printPos();
 		break;
 	/*case '3':
-		shape[5]->rollRight();
+		shape[WARBIRD]->rollRight();
 		break;
 	case '2':
 		if(mod != 0)
-			shape[5]->turnDown();
+			shape[WARBIRD]->turnDown();
 		else
-			shape[5]->moveBackward();
+			shape[WARBIRD]->moveBackward();
 		break;
 	case '5' :
-		shape[5]->moveUp();
+		shape[WARBIRD]->moveUp();
 		break;
 	case '0' :
-		shape[5]->moveDown();
+		shape[WARBIRD]->moveDown();
 		break;*/
 	case 033 : case 'q' :  case 'Q' : 
 		exit(EXIT_SUCCESS); 
@@ -706,22 +719,22 @@ void keyboard (unsigned char key, int x, int y) {
 		break;
 	case 'w' : case 'W' :  // Warp to different locations with the warbird.
 		switch(warpCase) {
-		case 'u' : warpCase = 'd'; shape[5]->warpToPlanet(shape[1]->getTranslationMat(), shape[1]->getRotationMat());  // If at Unum, warp to Duo.
+		case 'u' : warpCase = 'd'; shape[WARBIRD]->warpToPlanet(shape[UNUM]->getTranslationMat(), shape[UNUM]->getRotationMat());  // If at Unum, warp to Duo.
 			break;
-		case 'd' : warpCase = 'u'; shape[5]->warpToPlanet(shape[2]->getTranslationMat(), shape[2]->getRotationMat());  // If at Duo, warp to Unum.
+		case 'd' : warpCase = 'u'; shape[WARBIRD]->warpToPlanet(shape[DUO]->getTranslationMat(), shape[DUO]->getRotationMat());  // If at Duo, warp to Unum.
 			break;
 		default : warpCase = 'u'; break;
 		}
 		break;
 	case 'f' : case 'F' : // Fire the player's missile.
-		if(shape[5]->missiles > 0 && !shape[8]->inFlight && !shape[5]->isDead) {
+		if(shape[WARBIRD]->missiles > 0 && !shape[PLAYER_MISSILE]->inFlight && !shape[WARBIRD]->isDead) {
 			printf("FIRE!!!\n");
-			shape[8]->traveled = 0;
-			shape[8]->fire(shape[5]->getRotationMat(), shape[5]->getTranslationMat());
-			shape[5]->missiles--;
-		} else if(shape[5]->isDead) {
+			shape[PLAYER_MISSILE]->traveled = 0;
+			shape[PLAYER_MISSILE]->fire(shape[WARBIRD]->getRotationMat(), shape[WARBIRD]->getTranslationMat());
+			shape[WARBIRD]->missiles--;
+		} else if(shape[WARBIRD]->isDead) {
 			printf("Ship is dead\n");
-		} else if(shape[5]->missiles == 0) {
+		} else if(shape[WARBIRD]->missiles == 0) {
 			printf("No more missiles!\n");
 		} else {
 			printf("Missile is already in Flight!\n");
@@ -739,11 +752,11 @@ void keyboard (unsigned char key, int x, int y) {
 		gravity = !gravity;
 		break;
 	case 'r' : case 'R' : // Reset missiles and game.
-		shape[5]->missiles = 10;
-		shape[6]->missiles = 5;
-		shape[7]->missiles = 5;
-		shape[5]->setTranslationMat(glm::translate(glm::mat4(), glm::vec3(500.0f,0,500.0f)));
-		shape[5]->isDead = shape[6]->isDead = shape[7]->isDead = false;
+		shape[WARBIRD]->missiles = 10;
+		shape[UNUM_SITE]->missiles = 5;
+		shape[SECUNDUS_SITE]->missiles = 5;
+		shape[WARBIRD]->setTranslationMat(glm::translate(glm::mat4(), glm::vec3(500.0f,0,500.0f)));
+		shape[WARBIRD]->isDead = shape[UNUM_SITE]->isDead = shape[SECUNDUS_SITE]->isDead = false;
 		break;
 
 
