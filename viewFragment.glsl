@@ -25,14 +25,14 @@ uniform vec4 color_diffuse = vec4(0.4, 0.4, 0.4, 1.0);
 uniform vec4 color_specular = vec4(1.0, 1.0, 1.0, 1.0);  
 uniform float shininess = 50.0f;
         
-uniform vec3 light_position = vec3(0.0f, 0.0f, 2000.0f);
+uniform vec3 light_position = vec3(0.0f, 0.0f, 0.0f);
  
 
 void main(void) {
    float ambient = 1.0f;   // scale the ambient light 
-   vec3 light_direction = normalize(light_position - vs_worldpos);
+   vec3 light_direction = normalize(vs_worldpos);
    vec3 normal = normalize(vs_normal);
-   vec3 half_vector = normalize(light_direction + normalize(vs_worldpos));
+   vec3 half_vector = normalize(light_direction);
    float diffuse = max(0.0, dot(normal, light_direction));
    float specular = pow(max(0.0, dot(normal, half_vector)), shininess);
    color = ambient * color_ambient + diffuse * vsColor + specular * color_specular;

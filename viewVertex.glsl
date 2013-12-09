@@ -29,7 +29,7 @@ void main(void) {
   gl_Position = position;
   vs_worldpos = position.xyz;
   // mat3(ModelView) is a NormalMatrix
-  vs_normal = mat3(ModelView) * vNormal; 
+  vs_normal = -vNormal; 
   vsColor = vColor;
   }
  
