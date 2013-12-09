@@ -134,7 +134,7 @@ public:
 				missiles = 5;
 				break;
 			case 8: case 9: 
-				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(10, 10, 10));  // make missile
+				scaleMatrix = glm::scale(glm::mat4(), glm::vec3(45, 45, 45));  // make missile
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(1000000, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);

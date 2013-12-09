@@ -58,7 +58,7 @@ const GLuint nVerticesSphere = 4900 * 3;  // Planets
 const GLuint nVerticesWarbird = 980 * 3;  // Warbird (Player's ship)
 const GLuint nVerticesMissileSite = 600 * 3; // Missile launch sites (Enemies)
 // temporarily I am using the ugly-ass rocket .tri as a missile until we get a real one
-const GLuint nVerticesMissile = 144 * 3; // Missile (Same model used for player and enemies)
+const GLuint nVerticesMissile = 1568 * 3; // Missile (Same model used for player and enemies)
 
 float boundingRadius[nShapes];  // modelFile's bounding radius
 int Index =  0;  // Global variable indexing into VBO arrays.
