@@ -37,8 +37,8 @@ Current state is displayed in the window title.
 
 // Constants
 const int ACE = 40, PILOT = 100, TRAINEE = 250, DEBUG = 500;
-const int RUBER = 0, UNUM = 1, DUO = 2,
-	PRIMUS = 3, SECUNDUS = 4, WARBIRD = 5, UNUM_SITE = 6, SECUNDUS_SITE = 7, PLAYER_MISSILE = 8, ENEMY_MISSILE = 9;
+const int RUBER = 0, UNUM = 1, DUO = 2, PRIMUS = 3, SECUNDUS = 4,
+	WARBIRD = 5, UNUM_SITE = 6, SECUNDUS_SITE = 7, PLAYER_MISSILE = 8, ENEMY_MISSILE = 9;
 
 // Shapes and models.
 const int nShapes = 10;
@@ -128,7 +128,7 @@ boolean gravity = false;  // Set initial gravity state.
 // Initialize the game environment.
 void init (void) {
 	for(int i = 0; i < nShapes; i++) {
-		if(i < 5){	   
+		if (i < WARBIRD) {  // Initialize planetary bodies.
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesSphere, vertexSphere, diffuseColorMaterialSphere, normalSphere);
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
@@ -149,7 +149,6 @@ void init (void) {
 			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexSphere), sizeof(diffuseColorMaterialSphere), diffuseColorMaterialSphere );
 			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexSphere) + sizeof(diffuseColorMaterialSphere), sizeof(normalSphere), normalSphere );
 
-
 			// set up vertex arrays (after shaders are loaded)
 			vPosition[i] = glGetAttribLocation( shaderProgram, "vPosition" );
 			glEnableVertexAttribArray( vPosition[i] );
@@ -165,7 +164,7 @@ void init (void) {
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
-		} else if(i == 5) {
+		} else if(i == WARBIRD) {  // Initialize warbird.
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesWarbird, vertexWarbird, diffuseColorMaterialWarbird, normalWarbird);
 
 			if (boundingRadius[i] == -1.0f) {
@@ -189,7 +188,6 @@ void init (void) {
 			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexWarbird), sizeof(diffuseColorMaterialWarbird), diffuseColorMaterialWarbird );
 			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexWarbird) + sizeof(diffuseColorMaterialWarbird), sizeof(normalWarbird), normalWarbird );
 
-
 			// set up vertex arrays (after shaders are loaded)
 			vPosition[i] = glGetAttribLocation( shaderProgram, "vPosition" );
 			glEnableVertexAttribArray( vPosition[i] );
@@ -203,18 +201,16 @@ void init (void) {
 			glEnableVertexAttribArray( vNormal[i]);
 			glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexWarbird) + sizeof(diffuseColorMaterialWarbird)) );
 
-
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
-		} else if (i > 5 && i < 8) {
+		} else if (i > WARBIRD && i < PLAYER_MISSILE) {  // Initialize missile sites.
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissileSite, vertexMissileSite, diffuseColorMaterialMissileSite, normalMissileSite);
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
 				exit(1); }
 			else
 				printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
-
-			
+		
 			boundingRadius[i] = boundingRadius[i] + 3.0f;
 
 			shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
@@ -230,7 +226,6 @@ void init (void) {
 			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissileSite), sizeof(diffuseColorMaterialMissileSite), diffuseColorMaterialMissileSite );
 			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissileSite) + sizeof(diffuseColorMaterialMissileSite), sizeof(normalMissileSite), normalMissileSite );
 
-
 			// set up vertex arrays (after shaders are loaded)
 			vPosition[i] = glGetAttribLocation( shaderProgram, "vPosition" );
 			glEnableVertexAttribArray( vPosition[i] );
@@ -244,10 +239,9 @@ void init (void) {
 			glEnableVertexAttribArray( vNormal[i]);
 			glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissileSite) + sizeof(diffuseColorMaterialMissileSite)) );
 
-
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
-		} else {
+		} else {  // Initialize missiles.
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissile, vertexMissile, diffuseColorMaterialMissile, normalMissile);
 			if (boundingRadius[i] == -1.0f) {
 				printf("loadTriModel error:  returned -1.0f \n");
@@ -268,7 +262,6 @@ void init (void) {
 			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissile), sizeof(diffuseColorMaterialMissile), diffuseColorMaterialMissile );
 			glBufferSubData( GL_ARRAY_BUFFER, sizeof(vertexMissile) + sizeof(diffuseColorMaterialMissile), sizeof(normalMissile), normalMissile );
 
-
 			// set up vertex arrays (after shaders are loaded)
 			vPosition[i] = glGetAttribLocation( shaderProgram, "vPosition" );
 			glEnableVertexAttribArray( vPosition[i] );
@@ -281,7 +274,6 @@ void init (void) {
 			vNormal[i] = glGetAttribLocation( shaderProgram, "vNormal" );
 			glEnableVertexAttribArray( vNormal[i]);
 			glVertexAttribPointer( vNormal[i], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertexMissile) + sizeof(diffuseColorMaterialMissile)) );
-
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
@@ -303,7 +295,8 @@ void init (void) {
 		shape[i] = new Shape3D(i);
 		shape[i]->setBoundingRadius(boundingRadius[i]);
 	}
-	printf("%d Shapes created \n", nShapes);
+
+	printf("%d Shapes created. \n", nShapes);
 }
 
 void reshape(int width, int height) {
@@ -385,9 +378,10 @@ void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// update model matrix, set MVP, draw
 	updateView();
-	for(int i = 0; i < nShapes; i++) { 
+
+	for (int i = 0; i < nShapes; i++) { 
 		modelMatrix = shape[i]->getModelMatrix(shape[2]->getTranslationMat(), shape[2]->getRotationMat()); 
-		if (i > 7) {
+		if (i > SECUNDUS_SITE) {
 			modelMatrix = shape[i]->getModelMatrix(); 
 		}
 
@@ -397,68 +391,81 @@ void display(void) {
 		glEnableVertexAttribArray( vColor[i]);
 		glEnableVertexAttribArray( vNormal[i]);
 		glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
-		glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix)); 
-		if(i < 5)
+		glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
+
+		if (i < WARBIRD)  // Draw planetary bodies.
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesSphere);
-		else if(i==5)
+		else if (i == WARBIRD)  // Draw warbird.
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesWarbird);
-		else if(i > 5 && i <= 7)
+		else if (i > WARBIRD && i < PLAYER_MISSILE)  // Draw missile sites.
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissileSite);
 		else
-			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissile);
+			glDrawArrays(GL_TRIANGLES, 0, nVerticesMissile);  // Draw missiles.
 	}
 	glutSwapBuffers();
 }
+
+// Determine if an object has collided with another object.
 boolean detectCollision(float br1, glm::vec3 pos1, float br2, glm::vec3 pos2) {
-	float d = glm::distance(pos1, pos2);//sqrtf(pow((pos1.x - pos2.x),2) + pow((pos1.y - pos2.y),2) + pow((pos1.z - pos2.z),2));
+	float d = glm::distance(pos1, pos2);  //sqrtf(pow((pos1.x - pos2.x),2) + pow((pos1.y - pos2.y),2) + pow((pos1.z - pos2.z),2));
 	return (d - (br1 + br2) <= 0);
 }
-void checkCollides(){
-	int warbirdObjects[8] = {0,1,2,3,4,6,7,9};
-	int missileSiteObjects[2] = {5, 8};
-	int myMissileObjects[7] = {0,2,3,4,6,7,9};
-	int enemyMissileObjects[6] = {0,1,2,3,5,8};
 
-	for(int i = 0; i < 8; i++) {
-		if(detectCollision(shape[5]->getBoundingRadius(), shape[5]->getPosition(), shape[warbirdObjects[i]]->getBoundingRadius(), shape[warbirdObjects[i]]->getPosition()))
+// Check for collisions between objects.
+void checkCollides(){
+	// Specify the objects with which some objects may collide.
+	int warbirdObjects[8] = {RUBER, UNUM, DUO, PRIMUS, SECUNDUS, UNUM_SITE, SECUNDUS_SITE, ENEMY_MISSILE};
+	int missileSiteObjects[2] = {WARBIRD, PLAYER_MISSILE};
+	int playerMissileObjects[7] = {RUBER, DUO, PRIMUS, SECUNDUS, UNUM_SITE, SECUNDUS_SITE, ENEMY_MISSILE};
+	int enemyMissileObjects[6] = {RUBER, UNUM, DUO, PRIMUS, WARBIRD, PLAYER_MISSILE};
+
+	for(int i = RUBER; i < PLAYER_MISSILE; i++) {  // Check if the warbird has collided with an object.
+		if(detectCollision(shape[5]->getBoundingRadius(), shape[5]->getPosition(),shape[warbirdObjects[i]]->getBoundingRadius(),shape[warbirdObjects[i]]->getPosition()))
 		{
 			printf("You have died!\n");
 			shape[5]->isDead = true;
 		}
 	}
-	for(int i = 0; i < 7; i++) {
-		if(detectCollision(shape[8]->getBoundingRadius(), shape[8]->getPosition(), shape[myMissileObjects[i]]->getBoundingRadius(), shape[myMissileObjects[i]]->getPosition()) && shape[8]->traveled > 10)
+
+	for(int i = 0; i < SECUNDUS_SITE; i++) {  // Check if the player's missile has collided with an object.
+		if(detectCollision(shape[8]->getBoundingRadius(), shape[8]->getPosition(), shape[playerMissileObjects[i]]->getBoundingRadius(), shape[playerMissileObjects[i]]->getPosition()) && shape[8]->traveled > 10)
 		{
 			shape[8]->inFlight = false;
 		}
 	}
-	for(int i = 0; i < 6; i++) {
+
+	for(int i = 0; i < UNUM_SITE; i++) {  // Check if the enemy missile has collided with an object.
 		if(detectCollision(shape[9]->getBoundingRadius(), shape[9]->getPosition(), shape[enemyMissileObjects[i]]->getBoundingRadius(), shape[enemyMissileObjects[i]]->getPosition()) && shape[9]->traveled > 10)
 		{
 			shape[9]->inFlight = false;
 		}
 	}
-	for(int i = 0; i < 2; i++) {
+
+	for(int i = 0; i < DUO; i++) {
+		// Check if the Unum missile site has collided with an object.
 		if(detectCollision(shape[6]->getBoundingRadius(), shape[6]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()))
 		{
-			if(!(shape[8]->inFlight && i == 8)) {	//If isn't missile nor missile is in flight
+			if(!(shape[8]->inFlight && i == PLAYER_MISSILE)) {	//If isn't missile nor missile is in flight
 			} else if(shape[5]->isDead) {			//If warbird is dead
 			} else {
 				printf("Unum Missile Site Hit!\n");
 				shape[6]->isDead = true;
 			}
 		}
+		// Check if the Secundus missile site has collided with an object.
 		if(detectCollision(shape[7]->getBoundingRadius(), shape[7]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()) && shape[8]->inFlight)
 		{
 			if(!(shape[8]->inFlight && i == 8)) {	//If isn't missile nor missile is in flight
-			} else if(shape[5]->isDead) {			//If warbird is dead
+			} else if (shape[5]->isDead) {			//If warbird is dead
 			} else {
-				printf("Segundus Missile Site Hit!\n");
+				printf("Secundus Missile Site Hit!\n");
 				shape[7]->isDead = true;
 			}
 		}
 	}
 }
+
+// If the warbird is in range, fire an enemy missile.
 void missileSiteDetection() {
 	
 	if(glm::distance(shape[6]->getPosition(), shape[5]->getPosition()) < 500 && shape[6]->missiles > 0 && !shape[9]->inFlight && !shape[6]->isDead && (shape[9]->traveled > 250 || shape[9]->traveled == 0)) {
