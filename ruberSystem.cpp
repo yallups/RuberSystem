@@ -121,6 +121,16 @@ int timerDelay = ACE, frameCount = 0;  // Set initial game speed.
 int movementDirection = 0;
 boolean gravity = false;  // Set initial gravity state.
 
+char * skyboxfile[] = {
+	"skyboxPosX", 
+	"skyboxNegX",
+	"skyboxPosY", 
+	"skyboxNegY",
+	"skyboxPosZ", 
+	"skyboxNegZ",
+};
+GLsizei imgSize = 200;
+
 /**
 * Cube map Texture ID's
 */
@@ -137,31 +147,133 @@ void init (void) {
 	// Create and load the 6 textures of the cube map
 
 
+	unsigned char * data; 
+
+	// allocate buffer -- 3 bytes / texel -- rgb 
+	data = (unsigned char *) malloc( imgSize * imgSize * 3 ); 
+	// read the file into data -- 
+	int readResult; 
+	FILE * file;
+
+	file = fopen( skyboxfile[0], "rb" ); // binary file 
+	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
+	if (readResult != 1) { 
+		printf("File 1 was NOT read correctly\n"); 
+	} else {
+		printf("File 1 was read correctly\n"); 
+	}
 
     // Create the cube map textures, positive X
     glGenTextures(1,&texPosX);
     glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X,texPosX);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X,0,GL_RGB,imgPositiveX->header->imgWidth,imgPositiveX->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgPositiveX->imageData);
-    // Create the cube map textures, negative X
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+	// Create plane texture, postive X
+    glGenTextures(1,&planeTexPosX);
+    glBindTexture(GL_TEXTURE_2D,planeTexPosX);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+
+    //free(data);
+	
+	file = fopen( skyboxfile[1], "rb" ); // binary file 
+	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
+	if (readResult != 1) { 
+		printf("File %s was not read correctly\n"); 
+	} 
+
+	// Create the cube map textures, negative X
     glGenTextures(1,&texNegX);
     glBindTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X,texNegX);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X,0,GL_RGB,imgNegativeX->header->imgWidth,imgNegativeX->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgNegativeX->imageData);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+	// Create plane texture, negative X
+    glGenTextures(1,&planeTexNegX);
+    glBindTexture(GL_TEXTURE_2D,planeTexNegX);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    
+
+	//free(data);
+	
+	file = fopen( skyboxfile[2], "rb" ); // binary file 
+	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
+	if (readResult != 1) { 
+		printf("File %s was not read correctly\n"); 
+	}
+
     // Create the cube map textures, positive Y
     glGenTextures(1,&texPosY);
     glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y,texPosY);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y,0,GL_RGB,imgPositiveY->header->imgWidth,imgPositiveY->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgPositiveY->imageData);
-    // Create the cube map textures, negative Y
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+    // Create plane texture, postive X
+    glGenTextures(1,&planeTexPosY);
+    glBindTexture(GL_TEXTURE_2D,planeTexPosY);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    
+	
+	//free(data);
+	
+	file = fopen( skyboxfile[3], "rb" ); // binary file 
+	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
+	if (readResult != 1) { 
+		printf("File %s was not read correctly\n"); 
+	}
+	
+	// Create the cube map textures, negative Y
     glGenTextures(1,&texNegY);
     glBindTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,texNegY);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,0,GL_RGB,imgNegativeY->header->imgWidth,imgNegativeY->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgNegativeY->imageData);
-    // Create the cube map textures, positive Z
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+    // Create plane texture, negative X
+    glGenTextures(1,&planeTexNegY);
+    glBindTexture(GL_TEXTURE_2D,planeTexNegY);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    
+	
+	//free(data);
+	
+	file = fopen( skyboxfile[4], "rb" ); // binary file 
+	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
+	if (readResult != 1) { 
+		printf("File %s was not read correctly\n"); 
+	}
+	
+	// Create the cube map textures, positive Z
     glGenTextures(1,&texPosZ);
     glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z,texPosZ);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z,0,GL_RGB,imgPositiveZ->header->imgWidth,imgPositiveZ->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgPositiveZ->imageData);
-    // Create the cube map textures, negative Z
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+    // Create plane texture, postive X
+    glGenTextures(1,&planeTexPosZ);
+    glBindTexture(GL_TEXTURE_2D,planeTexPosZ);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    
+	
+	//free(data);
+	
+	file = fopen( skyboxfile[5], "rb" ); // binary file 
+	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
+	if (readResult != 1) { 
+		printf("File %s was not read correctly\n"); 
+	}
+	
+	// Create the cube map textures, negative Z
     glGenTextures(1,&texNegZ);
     glBindTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,texNegZ);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,0,GL_RGB,imgNegativeZ->header->imgWidth,imgNegativeZ->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgNegativeZ->imageData);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+	// Create plane texture, negative X
+    glGenTextures(1,&planeTexNegZ);
+    glBindTexture(GL_TEXTURE_2D,planeTexNegZ);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+
+	free(data);
 
     // Sets the texture's behavior for wrapping (optional)
     glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -170,46 +282,6 @@ void init (void) {
     // Sets the texture's max/min filters
     glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-    // Now we re-create the textures to texturize the planes
-
-    // Create plane texture, postive X
-    glGenTextures(1,&planeTexPosX);
-    glBindTexture(GL_TEXTURE_2D,planeTexPosX);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgPositiveX->header->imgWidth,imgPositiveX->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgPositiveX->imageData);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    // Create plane texture, negative X
-    glGenTextures(1,&planeTexNegX);
-    glBindTexture(GL_TEXTURE_2D,planeTexNegX);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgNegativeX->header->imgWidth,imgNegativeX->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgNegativeX->imageData);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    // Create plane texture, postive X
-    glGenTextures(1,&planeTexPosY);
-    glBindTexture(GL_TEXTURE_2D,planeTexPosY);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgPositiveY->header->imgWidth,imgPositiveY->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgPositiveY->imageData);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    // Create plane texture, negative X
-    glGenTextures(1,&planeTexNegY);
-    glBindTexture(GL_TEXTURE_2D,planeTexNegY);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgNegativeY->header->imgWidth,imgNegativeY->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgNegativeY->imageData);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    // Create plane texture, postive X
-    glGenTextures(1,&planeTexPosZ);
-    glBindTexture(GL_TEXTURE_2D,planeTexPosZ);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgPositiveZ->header->imgWidth,imgPositiveZ->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgPositiveZ->imageData);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    // Create plane texture, negative X
-    glGenTextures(1,&planeTexNegZ);
-    glBindTexture(GL_TEXTURE_2D,planeTexNegZ);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgNegativeZ->header->imgWidth,imgNegativeZ->header->imgHeight,1,GL_BGR,GL_UNSIGNED_BYTE,imgNegativeZ->imageData);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
 
 	for(int i = 0; i < nShapes; i++) {
 		if (i < WARBIRD) {  // Initialize planetary bodies.
