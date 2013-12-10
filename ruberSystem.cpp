@@ -129,7 +129,7 @@ char * skyboxfile[] = {
 	"skyboxPosZ", 
 	"skyboxNegZ",
 };
-GLsizei imgSize = 200;
+GLsizei imgSize = 10;
 
 /**
 * Cube map Texture ID's
