@@ -65,7 +65,7 @@ int Index =  0;  // Global variable indexing into VBO arrays.
 
 // display state and "state strings" for title display
 // window title strings
-char baseStr[60] = "465 Ruber Solar System {v, p, w, f, t} :";
+char baseStr[60] = "465 Ruber Solar System {v, p, w, f, t, r} :";
 char fpsStr[15], viewStr[15] = " Front View";
 char winloseStr[10];
 char titleStr [100]; 
@@ -78,7 +78,7 @@ GLuint buffer[nShapes]; // Create and initialize a buffer object
 GLuint shaderProgram; 
 char * vertexShaderFile = "viewVertex.glsl";
 char * fragmentShaderFile = "viewFragment.glsl";
-GLuint Model, ViewProj ;  // Mode, View*Projection handles
+GLuint Model, ViewProj, RuberLocation ;  // Mode, View*Projection handles
 
 glm::mat4 projectionMatrix;     // set in reshape()
 glm::mat4 modelMatrix;          // set in shape[i]-->updateDraw()
@@ -321,6 +321,7 @@ void init (void) {
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
+			RuberLocation = glGetUniformLocation(shaderProgram, "light_position");
 		} else if(i == WARBIRD) {  // Initialize warbird.
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesWarbird, vertexWarbird, diffuseColorMaterialWarbird, normalWarbird);
 
@@ -360,6 +361,7 @@ void init (void) {
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
+			RuberLocation = glGetUniformLocation(shaderProgram, "light_position");
 		} else if (i == UNUM_SITE || i == SECUNDUS_SITE) {  // Initialize missile sites.
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissileSite, vertexMissileSite, diffuseColorMaterialMissileSite, normalMissileSite);
 			if (boundingRadius[i] == -1.0f) {
@@ -398,6 +400,7 @@ void init (void) {
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
+			RuberLocation = glGetUniformLocation(shaderProgram, "light_position");
 		} else {  // Initialize missiles.
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesMissile, vertexMissile, diffuseColorMaterialMissile, normalMissile);
 			if (boundingRadius[i] == -1.0f) {
@@ -436,6 +439,8 @@ void init (void) {
 
 			Model = glGetUniformLocation(shaderProgram, "ModelView");
 			ViewProj = glGetUniformLocation(shaderProgram, "Projection");
+			RuberLocation = glGetUniformLocation(shaderProgram, "light_position");
+			
 		}
 	}
 
@@ -444,7 +449,6 @@ void init (void) {
 	at  = glm::vec3(0.0f, 0.0f,    0.0f);   // Looking at the origin.
 	up  = glm::vec3(0.0f, 1.0f,    0.0f);   // Camera's 'up' vector.
 	viewMatrix = glm::lookAt(eye, at, up);
-
 	// set render state values
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -551,21 +555,23 @@ void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// update model matrix, set MVP, draw
 	updateView();
-
+	
+	
 	for (int i = 0; i < nShapes; i++) { 
-		modelMatrix = shape[i]->getModelMatrix(shape[DUO]->getTranslationMat(), shape[DUO]->getRotationMat());
+		modelMatrix = viewMatrix * shape[i]->getModelMatrix(shape[DUO]->getTranslationMat(), shape[DUO]->getRotationMat());
 
 		if (i > SECUNDUS_SITE) {
-			modelMatrix = shape[i]->getModelMatrix(); 
+			modelMatrix = viewMatrix * shape[i]->getModelMatrix(); 
 		}
 
 		glBindVertexArray( vao[i] );
-		viewProjectionMatrix = projectionMatrix * viewMatrix; 
+		viewProjectionMatrix = projectionMatrix; 
 		glEnableVertexAttribArray( vPosition[i]);
 		glEnableVertexAttribArray( vColor[i]);
 		glEnableVertexAttribArray( vNormal[i]);
 		glUniformMatrix4fv(Model, 1, GL_FALSE, glm::value_ptr(modelMatrix)); 
 		glUniformMatrix4fv(ViewProj, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
+		glUniform3fv(RuberLocation, 1, glm::value_ptr(glm::vec3(viewMatrix*glm::vec4(0,0,0,1.0f))));
 
 		if (i < WARBIRD)  // Draw planetary bodies.
 			glDrawArrays(GL_TRIANGLES, 0, nVerticesSphere);
@@ -610,6 +616,7 @@ void checkCollides(){
 			} else {
 				printf("Unum Missile Site Hit!\n");
 				shape[UNUM_SITE]->isDead = true;
+				shape[UNUM_SITE]->missiles = 0;
 			}
 		}
 		// Check if the Secundus missile site has collided with an object.
@@ -620,6 +627,7 @@ void checkCollides(){
 			} else {
 				printf("Secundus Missile Site Hit!\n");
 				shape[SECUNDUS_SITE]->isDead = true;
+				shape[SECUNDUS_SITE]->missiles = 0;
 			}
 		}
 	}
@@ -628,13 +636,15 @@ void checkCollides(){
 		if(detectCollision(shape[PLAYER_MISSILE]->getBoundingRadius(), shape[PLAYER_MISSILE]->getPosition(), shape[playerMissileObjects[i]]->getBoundingRadius(), shape[playerMissileObjects[i]]->getPosition()) && shape[PLAYER_MISSILE]->traveled > 15)
 		{
 			shape[PLAYER_MISSILE]->inFlight = false;
+			shape[PLAYER_MISSILE]->traveled = 0;
 		}
 	}
 
 	for(int i = 0; i < 5; i++) {  // Check if the enemy missile has collided with an object.
-		if(detectCollision(shape[ENEMY_MISSILE]->getBoundingRadius(), shape[ENEMY_MISSILE]->getPosition(), shape[enemyMissileObjects[i]]->getBoundingRadius(), shape[enemyMissileObjects[i]]->getPosition()) && shape[ENEMY_MISSILE]->traveled > 10)
+		if(detectCollision(shape[ENEMY_MISSILE]->getBoundingRadius(), shape[ENEMY_MISSILE]->getPosition(), shape[enemyMissileObjects[i]]->getBoundingRadius(), shape[enemyMissileObjects[i]]->getPosition()) && shape[ENEMY_MISSILE]->traveled > 30)
 		{
 			shape[ENEMY_MISSILE]->inFlight = false;
+			shape[PLAYER_MISSILE]->traveled = 0;
 		}
 	}
 
@@ -658,14 +668,14 @@ void missileSiteDetection() {
 		siteID2 = UNUM_SITE;
 	}
 
-	if(glm::distance(shape[siteID1]->getPosition(), shape[WARBIRD]->getPosition()) < 500 && shape[siteID1]->missiles > 0 && !shape[ENEMY_MISSILE]->inFlight && !shape[siteID1]->isDead && (shape[ENEMY_MISSILE]->traveled > 250 || shape[ENEMY_MISSILE]->traveled == 0)) {
+	if(glm::distance(shape[siteID1]->getPosition(), shape[WARBIRD]->getPosition()) < 500 && shape[siteID1]->missiles > 0 && !shape[ENEMY_MISSILE]->inFlight && !shape[siteID1]->isDead && (shape[ENEMY_MISSILE]->traveled > 250 || shape[ENEMY_MISSILE]->traveled == 0 || !shape[ENEMY_MISSILE]->inFlight)) {
 		shape[ENEMY_MISSILE]->traveled = 0;
 		glm::mat4 direction = glm::mat4();
 		direction[2] = glm::normalize(glm::vec4(shape[WARBIRD]->getPosition() - shape[siteID1]->getPosition(), 0.0f));
 		glm::mat4 theposition = glm::translate(glm::mat4(), shape[siteID1]->getPosition());
 		shape[ENEMY_MISSILE]->fire(direction , theposition);
 		shape[siteID1]->missiles--;
-	} else if(glm::distance(shape[siteID2]->getPosition(), shape[WARBIRD]->getPosition()) < 500 && shape[siteID2]->missiles > 0 && !shape[ENEMY_MISSILE]->inFlight && !shape[siteID2]->isDead && (shape[ENEMY_MISSILE]->traveled > 250 || shape[ENEMY_MISSILE]->traveled == 0)) {
+	} else if(glm::distance(shape[siteID2]->getPosition(), shape[WARBIRD]->getPosition()) < 500 && shape[siteID2]->missiles > 0 && !shape[ENEMY_MISSILE]->inFlight && !shape[siteID2]->isDead && (shape[ENEMY_MISSILE]->traveled > 250 || shape[ENEMY_MISSILE]->traveled == 0 || !shape[ENEMY_MISSILE]->inFlight)) {
 		shape[ENEMY_MISSILE]->traveled = 0;
 		glm::mat4 direction = glm::mat4();
 		direction[2] = glm::normalize(glm::vec4(shape[WARBIRD]->getPosition() - shape[siteID2]->getPosition(), 0.0f));
@@ -946,7 +956,7 @@ int main(int argc, char* argv[]) {
 	glutInitWindowSize(800, 600);
 	glutInitContextVersion(3, 3);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
-	glutCreateWindow("465 Ruber Solar System {v, p, w, f, t} : Front View");
+	glutCreateWindow("465 Ruber Solar System {v, p, w, f, t, r} : Front View");
 
 	// initialize and verify glew
 	glewExperimental = GL_TRUE;  // needed my home system 

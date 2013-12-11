@@ -19,4 +19,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Shape3D.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="viewFragment.glsl" />
+    <None Include="viewVertex.glsl" />
+  </ItemGroup>
 </Project>

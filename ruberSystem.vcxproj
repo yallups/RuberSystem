@@ -66,6 +66,13 @@
   <ItemGroup>
     <ClCompile Include="ruberSystem.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Shape3D.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="viewFragment.glsl" />
+    <None Include="viewVertex.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

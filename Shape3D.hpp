@@ -309,13 +309,12 @@ public:
 	  
 	  //printf("Missile Direction: %f, %f, %f\n",missileDirection.x, missileDirection.y, missileDirection.z);
 	  //printf("Missile to Target: %f, %f, %f\n",missileToTarget.x, missileToTarget.y, missileToTarget.z);
-	  printf("Normal: %f, %f, %f\n", normal.x, normal.y, normal.z);
+	  //printf("Normal: %f, %f, %f\n", normal.x, normal.y, normal.z);
 	  //printf("Angle: %f, Turn: %f, Distance: %f\n",angle, turn, glm::distance(glm::vec3(), glm::vec3(missileTarget.x-getPosition().x, missileTarget.y-getPosition().y, missileTarget.z-getPosition().z)));
 	  
 	  if(angle > PI/18) {
 		  if(normal.y > 0) {
-				  rotationMatrix = glm::rotate(rotationMatrix, (turn/7), glm::vec3(0,1.0f,0));
-			  
+				  rotationMatrix = glm::rotate(rotationMatrix, (turn/7), glm::vec3(0,1.0f,0));  
 		  } else {
 				  rotationMatrix = glm::rotate(rotationMatrix, -1*(turn/7), glm::vec3(0,1.0f,0));
 		  }
