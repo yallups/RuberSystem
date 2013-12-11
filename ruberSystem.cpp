@@ -145,145 +145,6 @@ GLuint planeTexPosX,planeTexPosY,planeTexPosZ,planeTexNegX,planeTexNegY,planeTex
 // Initialize the scene.
 void init (void) {
 	
-	// Create and load the 6 textures of the cube map
-
-
-	unsigned char * data; 
-
-	// allocate buffer -- 3 bytes / texel -- rgb 
-	data = (unsigned char *) malloc( imgSize * imgSize * 3 ); 
-	// read the file into data -- 
-	int readResult; 
-	FILE * file;
-
-	file = fopen( skyboxfile[0], "rb" ); // binary file 
-	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
-	if (readResult != 1) { 
-		printf("File 1 was NOT read correctly\n"); 
-	} else {
-		printf("File 1 was read correctly\n"); 
-	}
-
-    // Create the cube map textures, positive X
-    glGenTextures(1,&texPosX);
-    glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X,texPosX);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-	// Create plane texture, postive X
-    glGenTextures(1,&planeTexPosX);
-    glBindTexture(GL_TEXTURE_2D,planeTexPosX);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-    //free(data);
-	
-	file = fopen( skyboxfile[1], "rb" ); // binary file 
-	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
-	if (readResult != 1) { 
-		printf("File %s was not read correctly\n"); 
-	} 
-
-	// Create the cube map textures, negative X
-    glGenTextures(1,&texNegX);
-    glBindTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X,texNegX);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-	// Create plane texture, negative X
-    glGenTextures(1,&planeTexNegX);
-    glBindTexture(GL_TEXTURE_2D,planeTexNegX);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    
-
-	//free(data);
-	
-	file = fopen( skyboxfile[2], "rb" ); // binary file 
-	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
-	if (readResult != 1) { 
-		printf("File %s was not read correctly\n"); 
-	}
-
-    // Create the cube map textures, positive Y
-    glGenTextures(1,&texPosY);
-    glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y,texPosY);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-    // Create plane texture, postive X
-    glGenTextures(1,&planeTexPosY);
-    glBindTexture(GL_TEXTURE_2D,planeTexPosY);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    
-	
-	//free(data);
-	
-	file = fopen( skyboxfile[3], "rb" ); // binary file 
-	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
-	if (readResult != 1) { 
-		printf("File %s was not read correctly\n"); 
-	}
-	
-	// Create the cube map textures, negative Y
-    glGenTextures(1,&texNegY);
-    glBindTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,texNegY);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-    // Create plane texture, negative X
-    glGenTextures(1,&planeTexNegY);
-    glBindTexture(GL_TEXTURE_2D,planeTexNegY);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    
-	
-	//free(data);
-	
-	file = fopen( skyboxfile[4], "rb" ); // binary file 
-	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
-	if (readResult != 1) { 
-		printf("File %s was not read correctly\n"); 
-	}
-	
-	// Create the cube map textures, positive Z
-    glGenTextures(1,&texPosZ);
-    glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z,texPosZ);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-    // Create plane texture, postive X
-    glGenTextures(1,&planeTexPosZ);
-    glBindTexture(GL_TEXTURE_2D,planeTexPosZ);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    
-	
-	//free(data);
-	
-	file = fopen( skyboxfile[5], "rb" ); // binary file 
-	readResult = fread( data, imgSize * imgSize * 3, 1, file ); 
-	if (readResult != 1) { 
-		printf("File %s was not read correctly\n"); 
-	}
-	
-	// Create the cube map textures, negative Z
-    glGenTextures(1,&texNegZ);
-    glBindTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,texNegZ);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-	// Create plane texture, negative X
-    glGenTextures(1,&planeTexNegZ);
-    glBindTexture(GL_TEXTURE_2D,planeTexNegZ);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgSize,imgSize,1,GL_BGR,GL_UNSIGNED_BYTE,data);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-	free(data);
-
-    // Sets the texture's behavior for wrapping (optional)
-    glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_T,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_R,GL_REPEAT);
-    // Sets the texture's max/min filters
-    glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
 	for(int i = 0; i < nShapes; i++) {
 		if (i < WARBIRD) {  // Initialize planetary bodies.
 			boundingRadius[i] = loadTriModel(modelFile[i], nVerticesSphere, vertexSphere, diffuseColorMaterialSphere, normalSphere);
@@ -449,6 +310,7 @@ void init (void) {
 	at  = glm::vec3(0.0f, 0.0f,    0.0f);   // Looking at the origin.
 	up  = glm::vec3(0.0f, 1.0f,    0.0f);   // Camera's 'up' vector.
 	viewMatrix = glm::lookAt(eye, at, up);
+
 	// set render state values
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -689,49 +551,6 @@ void missileSiteDetection() {
 // to set rotation
 void animate(void){}
 
-//void checkCollisons() {
-//
-//	glm::vec3 pos1;
-//	//glm::vec4 shipPos = shape[WARBIRD]->getModelMatrix(shape[DUO]->getTranslationMat(), shape[DUO]->getRotationMat())[3]; 
-//	
-//	glm::vec3 shipPos = shape[WARBIRD]->getposition();
-//	
-//	glm::vec3 goodMissilePos = shape[PLAYER_MISSILE]->getposition();
-//	glm::vec3 badMissilePos = shape[ENEMY_MISSILE]->getposition();
-//	glm::vec3 missileSite1 = shape[UNUM_SITE]->getposition();
-//	glm::vec3 missilwSite2 = shape[SECUNDUS_SITE]->getposition();
-//
-//	float d;
-//
-//	for(int i = 0; i < 5; i++) {	
-//		pos1 = shape[i]->getposition(); 
-//		
-//		d = sqrtf(pow((pos1.x - shipPos.x),2) + pow((pos1.y - shipPos.y),2) + pow((pos1.z - shipPos.z),2));
-//
-//		if (d - (boundingRadius[i] + boundingRadius[5]) <= 0) {
-//			printf("YOU LOSE!!! BOOOOM! %d <--> %d\n", i, 5);
-//		}
-//	}
-//
-//	d = sqrtf(pow((badMissilePos.x - shipPos.x),2) + pow((badMissilePos.y - shipPos.y),2) + pow((badMissilePos.z - shipPos.z),2));
-//	if (d - (boundingRadius[9] + boundingRadius[5]) <= 0) {
-//		printf("YOU LOSE!!!! BOOOOM! %d <--> %d\n", 9, 5);
-//	}
-//
-//	d = sqrtf(pow((goodMissilePos.x - missileSite1.x),2) + pow((goodMissilePos.y - missileSite1.y),2) + pow((goodMissilePos.z - missileSite1.z),2));
-//	if (d - (boundingRadius[8] + boundingRadius[6]) <= 0) {
-//		printf("got one: BOOOOM! %d <--> %d\n", 8, 6);
-//	}
-//
-//	d = sqrtf(pow((goodMissilePos.x - missilwSite2.x),2) + pow((goodMissilePos.y - missilwSite2.y),2) + pow((goodMissilePos.z - missilwSite2.z),2));
-//	if (d - (boundingRadius[8] + boundingRadius[7]) <= 0) {
-//		printf("got one: BOOOOM! %d <--> %d\n", 8, 7);
-//	}
-//	
-//
-//}
-
-
 // Estimate FPS, use fixed interval timer to measure every second
 // timerDelay = 1000
 void intervalTimer (int i) { 
@@ -846,45 +665,12 @@ void keyboard (unsigned char key, int x, int y) {
 	//printf("%d, %d, keyboard\n", mod, key);
 
 	switch(key) {
-	/*case '8' :
-		if(mod != 0)
-			shape[WARBIRD]->turnUp();
-		else
-			shape[WARBIRD]->moveForward();
-		break;
-	case '7' :
-		shape[WARBIRD]->moveLeft();
-		break;
-	case '4' :
-		shape[WARBIRD]->turnLeft();
-		break;
-	case '9' :
-		shape[WARBIRD]->moveRight();
-		break;
-	case '6' :
-		shape[WARBIRD]->turnRight();
-		break;*/
 	case '1':
 		//case 1 prints out the position of each of the missiles and the warbird
 		shape[WARBIRD]->printPos();
 		shape[PLAYER_MISSILE]->printPos();
 		shape[ENEMY_MISSILE]->printPos();
 		break;
-	/*case '3':
-		shape[WARBIRD]->rollRight();
-		break;
-	case '2':
-		if(mod != 0)
-			shape[WARBIRD]->turnDown();
-		else
-			shape[WARBIRD]->moveBackward();
-		break;
-	case '5' :
-		shape[WARBIRD]->moveUp();
-		break;
-	case '0' :
-		shape[WARBIRD]->moveDown();
-		break;*/
 	case 033 : case 'q' :  case 'Q' : 
 		exit(EXIT_SUCCESS); 
 		break;
