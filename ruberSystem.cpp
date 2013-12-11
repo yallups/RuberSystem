@@ -67,6 +67,7 @@ int Index =  0;  // Global variable indexing into VBO arrays.
 // window title strings
 char baseStr[60] = "465 Ruber Solar System {v, p, w, f, t} :";
 char fpsStr[15], viewStr[15] = " Front View";
+char winloseStr[10];
 char titleStr [100]; 
 
 char viewCase = 'f';
@@ -329,7 +330,7 @@ void init (void) {
 			else
 				printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
 			
-			boundingRadius[i] = boundingRadius[i] + 5.0f; //Warbird has larger radius
+			boundingRadius[i] = 15.0f; //Warbird has larger radius
 
 			shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 			glUseProgram(shaderProgram);
@@ -367,7 +368,7 @@ void init (void) {
 			else
 				printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
 		
-			boundingRadius[i] = boundingRadius[i] + 3.0f;
+			boundingRadius[i] = 23.0f;
 
 			shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 			glUseProgram(shaderProgram);
@@ -404,6 +405,8 @@ void init (void) {
 				exit(1); }
 			else
 				printf("loaded %s model with %7.2f bounding radius \n", modelFile[i], boundingRadius[i]);
+			
+			boundingRadius[i] = 15.0f;
 
 			shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 			glUseProgram(shaderProgram);
@@ -449,6 +452,14 @@ void init (void) {
 	// create shape
 	for(int i = 0; i < nShapes; i++) {
 		shape[i] = new Shape3D(i);
+		switch(i) {
+			case 0: boundingRadius[i] = 100; break;
+			case 1: boundingRadius[i] = 10; break;
+			case 2: boundingRadius[i] = 20; break;
+			case 3: boundingRadius[i] = 5; break;
+			case 4: boundingRadius[i] = 7; break;
+			default: break;
+		}
 		shape[i]->setBoundingRadius(boundingRadius[i]);
 	}
 
@@ -467,6 +478,12 @@ void updateTitle() {
 	strcpy(titleStr, baseStr);
 	strcat(titleStr, viewStr);
 	strcat(titleStr, fpsStr);
+	if(shape[WARBIRD]->isDead || shape[WARBIRD]->missiles == 0)
+		strcpy(winloseStr, " You Lose!");
+	if(shape[UNUM_SITE]->isDead && shape[SECUNDUS_SITE]->isDead || (shape[UNUM_SITE]->missiles == 0 && shape[SECUNDUS_SITE]->missiles == 0))
+		strcpy(winloseStr, " You Win!");
+	
+	strcat(titleStr, winloseStr);
 	//strcat(titleStr, str);
 	// printf("title string = %s \n", titleStr);
 	glutSetWindowTitle( titleStr);
@@ -575,7 +592,7 @@ void checkCollides(){
 	int warbirdObjects[8] = {RUBER, UNUM, DUO, PRIMUS, SECUNDUS, UNUM_SITE, SECUNDUS_SITE, ENEMY_MISSILE};
 	int missileSiteObjects[2] = {WARBIRD, PLAYER_MISSILE};
 	int playerMissileObjects[7] = {RUBER, DUO, PRIMUS, SECUNDUS, UNUM_SITE, SECUNDUS_SITE, ENEMY_MISSILE};
-	int enemyMissileObjects[6] = {RUBER, UNUM, DUO, PRIMUS, WARBIRD, PLAYER_MISSILE};
+	int enemyMissileObjects[5] = {RUBER, DUO, PRIMUS, WARBIRD, PLAYER_MISSILE};
 
 	for(int i = 0; i < 8; i++) {  // Check if the warbird has collided with an object.
 		if(detectCollision(shape[WARBIRD]->getBoundingRadius(), shape[WARBIRD]->getPosition(),shape[warbirdObjects[i]]->getBoundingRadius(),shape[warbirdObjects[i]]->getPosition()))
@@ -584,26 +601,11 @@ void checkCollides(){
 			shape[WARBIRD]->isDead = true;
 		}
 	}
-
-	for(int i = 0; i < 7; i++) {  // Check if the player's missile has collided with an object.
-		if(detectCollision(shape[PLAYER_MISSILE]->getBoundingRadius(), shape[PLAYER_MISSILE]->getPosition(), shape[playerMissileObjects[i]]->getBoundingRadius(), shape[playerMissileObjects[i]]->getPosition()) && shape[PLAYER_MISSILE]->traveled > 10)
-		{
-			shape[PLAYER_MISSILE]->inFlight = false;
-		}
-	}
-
-	for(int i = 0; i < 6; i++) {  // Check if the enemy missile has collided with an object.
-		if(detectCollision(shape[ENEMY_MISSILE]->getBoundingRadius(), shape[ENEMY_MISSILE]->getPosition(), shape[enemyMissileObjects[i]]->getBoundingRadius(), shape[enemyMissileObjects[i]]->getPosition()) && shape[ENEMY_MISSILE]->traveled > 10)
-		{
-			shape[ENEMY_MISSILE]->inFlight = false;
-		}
-	}
-
 	for(int i = 0; i < 2; i++) {
 		// Check if the Unum missile site has collided with an object.
-		if(detectCollision(shape[UNUM_SITE]->getBoundingRadius(), shape[UNUM_SITE]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()))
+		if(detectCollision(boundingRadius[UNUM_SITE], shape[UNUM_SITE]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()))
 		{
-			if(!(shape[PLAYER_MISSILE]->inFlight && i == PLAYER_MISSILE)) {	//If isn't missile nor missile is in flight
+			if(!(shape[PLAYER_MISSILE]->inFlight && missileSiteObjects[i] == PLAYER_MISSILE)) {	//If isn't missile nor missile is in flight
 			} else if(shape[WARBIRD]->isDead) {			//If warbird is dead
 			} else {
 				printf("Unum Missile Site Hit!\n");
@@ -611,9 +613,9 @@ void checkCollides(){
 			}
 		}
 		// Check if the Secundus missile site has collided with an object.
-		if(detectCollision(shape[SECUNDUS_SITE]->getBoundingRadius(), shape[SECUNDUS_SITE]->getPosition(), shape[missileSiteObjects[i]]->getBoundingRadius(), shape[missileSiteObjects[i]]->getPosition()) && shape[PLAYER_MISSILE]->inFlight)
+		if(detectCollision(boundingRadius[SECUNDUS_SITE], shape[SECUNDUS_SITE]->getPosition(), boundingRadius[WARBIRD], shape[missileSiteObjects[i]]->getPosition()) && shape[PLAYER_MISSILE]->inFlight)
 		{
-			if(!(shape[PLAYER_MISSILE]->inFlight && i == PLAYER_MISSILE)) {	//If isn't missile nor missile is in flight
+			if(!(shape[PLAYER_MISSILE]->inFlight && missileSiteObjects[i] == PLAYER_MISSILE)) {	//If isn't missile nor missile is in flight
 			} else if (shape[WARBIRD]->isDead) {			//If warbird is dead
 			} else {
 				printf("Secundus Missile Site Hit!\n");
@@ -621,6 +623,22 @@ void checkCollides(){
 			}
 		}
 	}
+
+	for(int i = 0; i < 7; i++) {  // Check if the player's missile has collided with an object.
+		if(detectCollision(shape[PLAYER_MISSILE]->getBoundingRadius(), shape[PLAYER_MISSILE]->getPosition(), shape[playerMissileObjects[i]]->getBoundingRadius(), shape[playerMissileObjects[i]]->getPosition()) && shape[PLAYER_MISSILE]->traveled > 15)
+		{
+			shape[PLAYER_MISSILE]->inFlight = false;
+		}
+	}
+
+	for(int i = 0; i < 5; i++) {  // Check if the enemy missile has collided with an object.
+		if(detectCollision(shape[ENEMY_MISSILE]->getBoundingRadius(), shape[ENEMY_MISSILE]->getPosition(), shape[enemyMissileObjects[i]]->getBoundingRadius(), shape[enemyMissileObjects[i]]->getPosition()) && shape[ENEMY_MISSILE]->traveled > 10)
+		{
+			shape[ENEMY_MISSILE]->inFlight = false;
+		}
+	}
+
+	
 }
 
 // If the warbird is in range, fire an enemy missile.
@@ -731,10 +749,10 @@ void intervalTimer (int i) {
 
 			// Determine which missile site is closer. Player's missile should target the closer site.
 			if (site1 <= site2) {
-				printf("Target = Unum\n");
+				//printf("Target = Unum\n");
 				shape[i] -> update(movementDirection,shape[UNUM_SITE]->getPosition());
 			} else {
-				printf("Target = Secundus\n");
+				//printf("Target = Secundus\n");
 				shape[i] -> update(movementDirection,shape[SECUNDUS_SITE]->getPosition());
 			}
 		} else if (i == ENEMY_MISSILE && shape[i]->inFlight) {  // Update the enemy's missile if it is in flight.
@@ -915,6 +933,7 @@ void keyboard (unsigned char key, int x, int y) {
 		shape[SECUNDUS_SITE]->missiles = 5;
 		shape[WARBIRD]->setTranslationMat(glm::translate(glm::mat4(), glm::vec3(500.0f,0,500.0f)));
 		shape[WARBIRD]->isDead = shape[UNUM_SITE]->isDead = shape[SECUNDUS_SITE]->isDead = false;
+		strcpy(winloseStr, "");
 		break;
 	}
 

@@ -101,7 +101,7 @@ public:
 				radians = glm::radians(0.11f); //Rotate around Duo
 				orbital = true;
 				break;
-			case 4: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(15, 15, 15));  // make Segundus
+			case 4: scaleMatrix = glm::scale(glm::mat4(), glm::vec3(15, 15, 15));  // make Secundus
 				translationMatrix = glm::translate(glm::mat4(), glm::vec3(100, 0, 0));		// initial placement +/- 500 from origin in X, Y, Z
 				//set cube's  rotation axis and rotation radians
 				rotationAxis = glm::vec3(0,  1, 0);
@@ -302,27 +302,24 @@ public:
 	  glm::vec3 missileToTarget = glm::normalize(glm::vec3(missileTarget.x-getPosition().x, missileTarget.y-getPosition().y, missileTarget.z-getPosition().z));
 	  
 	  glm::vec3 normal = glm::cross(missileDirection, missileToTarget);
-	  float angleDifference = glm::acos(glm::dot(glm::vec3(0,0,1.0f), missileDirection));
-	  if(missileDirection.y + (PI/2) > 0)
-		  //angleDifference *= -1.0f;
-	  printf("Angle Difference: %f\n", angleDifference);
-	  missileToTarget = glm::normalize(glm::vec3((missileToTarget.x * glm::cos(angleDifference)) + (missileToTarget.z * glm::sin(angleDifference)), missileToTarget.y, (missileToTarget.z * glm::cos(angleDifference)) - (missileToTarget.x * glm::sin(angleDifference))));
-
+	  
 	  float dotP = glm::dot(missileDirection, missileToTarget);
 	  float angle = glm::acos(dotP);
 	  float turn = 0.1f;
 	  
-	  printf("Missile Direction: %f, %f, %f\n",missileDirection.x, missileDirection.y, missileDirection.z);
-	  printf("Missile to Target: %f, %f, %f\n",missileToTarget.x, missileToTarget.y, missileToTarget.z);
+	  //printf("Missile Direction: %f, %f, %f\n",missileDirection.x, missileDirection.y, missileDirection.z);
+	  //printf("Missile to Target: %f, %f, %f\n",missileToTarget.x, missileToTarget.y, missileToTarget.z);
 	  printf("Normal: %f, %f, %f\n", normal.x, normal.y, normal.z);
-	  printf("Angle: %f, Turn: %f, Distance: %f\n",angle, turn, glm::distance(glm::vec3(), glm::vec3(missileTarget.x-getPosition().x, missileTarget.y-getPosition().y, missileTarget.z-getPosition().z)));
-
+	  //printf("Angle: %f, Turn: %f, Distance: %f\n",angle, turn, glm::distance(glm::vec3(), glm::vec3(missileTarget.x-getPosition().x, missileTarget.y-getPosition().y, missileTarget.z-getPosition().z)));
+	  
 	  if(angle > PI/18) {
-		  if(missileToTarget.x > missileDirection.x) {
-			  rotationMatrix = glm::rotate(rotationMatrix, -1*(turn/7), glm::vec3(0,1.0f,0));
-		  } else if(missileToTarget.x < missileDirection.x) {
-			  rotationMatrix = glm::rotate(rotationMatrix, (turn/7), glm::vec3(0,1.0f,0));
+		  if(normal.y > 0) {
+				  rotationMatrix = glm::rotate(rotationMatrix, (turn/7), glm::vec3(0,1.0f,0));
+			  
+		  } else {
+				  rotationMatrix = glm::rotate(rotationMatrix, -1*(turn/7), glm::vec3(0,1.0f,0));
 		  }
+
 
 		  if(missileToTarget.y > missileDirection.y) {
 			  rotationMatrix = glm::rotate(rotationMatrix, -1*(turn/7), glm::vec3(1.0f,0,0));
@@ -330,8 +327,8 @@ public:
 			  rotationMatrix = glm::rotate(rotationMatrix, (turn/7), glm::vec3(1.0f,0,0));
 		  }
 	  }
-	  if(angle <= PI/18 && angle > 0.0f) {
-		  rotationMatrix = glm::rotate(rotationMatrix, glm::radians(angle), normal);
+	  if(angle <= PI/18 && angle > 0.0001f) {
+		  rotationMatrix = glm::rotate(rotationMatrix, angle, normal);
 	  }
   }
   };  
